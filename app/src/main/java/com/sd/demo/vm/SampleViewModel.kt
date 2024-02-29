@@ -64,7 +64,7 @@ internal class MyViewModel : FViewModel<MyViewModel.Intent>() {
     init {
         viewModelScope.launch {
             isActiveFlow.collect {
-                logMsg { "active:$it" }
+                logMsg { "active:$it ${Thread.currentThread().name}" }
             }
         }
     }
