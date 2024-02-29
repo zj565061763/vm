@@ -7,26 +7,6 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
-data class PageState<T>(
-    /** 数据 */
-    val data: List<T> = emptyList(),
-
-    /** 数据结果 */
-    val result: Result<Unit>? = null,
-
-    /** 当前页码 */
-    val currentPage: Int = 0,
-
-    /** 是否还有更多数据 */
-    val hasMore: Boolean = false,
-
-    /** 是否正在刷新 */
-    val isRefreshing: Boolean = false,
-
-    /** 是否正在加载更多 */
-    val isLoadingMore: Boolean = false,
-)
-
 /**
  * 分页管理
  */
@@ -80,6 +60,26 @@ fun <T> PagePlugin(
         onLoad = onLoad,
     )
 }
+
+data class PageState<T>(
+    /** 数据 */
+    val data: List<T> = emptyList(),
+
+    /** 当前页码的数据结果 */
+    val result: Result<Unit>? = null,
+
+    /** 当前页码 */
+    val currentPage: Int = 0,
+
+    /** 是否还有更多数据 */
+    val hasMore: Boolean = false,
+
+    /** 是否正在刷新 */
+    val isRefreshing: Boolean = false,
+
+    /** 是否正在加载更多 */
+    val isLoadingMore: Boolean = false,
+)
 
 private class PagePluginImpl<T>(
     /** 状态管理 */
@@ -162,10 +162,8 @@ private class PagePluginImpl<T>(
         }
 
         result.onFailure { throwable ->
-            if (state.value.data.isEmpty()) {
-                stater.update {
-                    it.copy(result = Result.failure(throwable))
-                }
+            stater.update {
+                it.copy(result = Result.failure(throwable))
             }
         }
     }
