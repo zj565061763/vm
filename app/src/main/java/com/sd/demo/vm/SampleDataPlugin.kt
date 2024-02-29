@@ -25,7 +25,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sd.demo.vm.model.UserModel
 import com.sd.lib.vm.PluginViewModel
 import com.sd.lib.vm.plugin.DataPlugin
-import com.sd.lib.vm.plugin.onData
 import com.sd.lib.vm.plugin.onFailure
 import com.sd.lib.vm.plugin.onSuccess
 import kotlinx.coroutines.CancellationException
@@ -79,9 +78,7 @@ private fun Content(
             }
         }
 
-        state.onData {
-            Text(text = it.name)
-        }
+        Text(text = state.data.name)
 
         state.onSuccess {
             Text(text = "Success")
@@ -97,11 +94,10 @@ private fun Content(
 }
 
 class MyDataViewModel : PluginViewModel<Unit>() {
+    private var _count = 0
 
     /** 数据 */
-    val data = DataPlugin { loadData() }.register()
-
-    private var _count = 0
+    val data = DataPlugin(UserModel(name = "")) { loadData() }.register()
 
     override suspend fun handleIntent(intent: Unit) {}
 

@@ -31,7 +31,7 @@ interface DataPlugin<T> : StatePlugin<DataState<T>> {
     /**
      * 更新数据
      */
-    fun update(function: (T?) -> T?)
+    fun update(function: (T) -> T)
 }
 
 /**
@@ -41,8 +41,8 @@ interface DataPlugin<T> : StatePlugin<DataState<T>> {
  * @param onLoad 数据加载回调
  */
 fun <T> DataPlugin(
-    initial: T? = null,
-    onLoad: suspend () -> Result<T?>,
+    initial: T,
+    onLoad: suspend () -> Result<T>,
 ): DataPlugin<T> {
     return DataPluginImpl(
         initial = initial,
@@ -54,7 +54,7 @@ fun <T> DataPlugin(
 
 data class DataState<T>(
     /** 数据 */
-    val data: T? = null,
+    val data: T,
 
     /** 数据结果 */
     val result: Result<Unit>? = null,
@@ -63,17 +63,7 @@ data class DataState<T>(
     val isLoading: Boolean = false,
 )
 
-inline fun <T> DataState<T>.onData(action: (data: T) -> Unit): DataState<T> {
-    data?.let(action)
-    return this
-}
-
 inline fun <T> DataState<T>.onSuccess(action: (data: T) -> Unit): DataState<T> {
-    result?.onSuccess { data?.let(action) }
-    return this
-}
-
-inline fun <T> DataState<T>.onSuccessNullable(action: (data: T?) -> Unit): DataState<T> {
     result?.onSuccess { action(data) }
     return this
 }
@@ -86,8 +76,8 @@ inline fun <T> DataState<T>.onFailure(action: (exception: Throwable) -> Unit): D
 //---------- impl ----------
 
 private class DataPluginImpl<T>(
-    initial: T?,
-    private val onLoad: suspend () -> Result<T?>,
+    initial: T,
+    private val onLoad: suspend () -> Result<T>,
 ) : ViewModelPlugin(), DataPlugin<T> {
 
     /** 互斥修改器 */
@@ -112,7 +102,7 @@ private class DataPluginImpl<T>(
         _mutator.cancel()
     }
 
-    override fun update(function: (T?) -> T?) {
+    override fun update(function: (T) -> T) {
         _state.update {
             it.copy(data = function(it.data))
         }
@@ -140,7 +130,7 @@ private class DataPluginImpl<T>(
         }
     }
 
-    private fun handleLoadResult(result: Result<T?>) {
+    private fun handleLoadResult(result: Result<T>) {
         result.onSuccess { data ->
             _state.update {
                 it.copy(

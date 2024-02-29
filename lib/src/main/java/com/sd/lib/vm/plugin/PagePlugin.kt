@@ -94,7 +94,7 @@ private class PagePluginImpl<T>(
     private val onLoad: suspend (page: Int) -> Result<PagePlugin.Data<T>>,
 ) : ViewModelPlugin(), PagePlugin<T> {
 
-    private val _refreshPlugin = DataPlugin<Unit> {
+    private val _refreshPlugin = DataPlugin(Unit) {
         val page = refreshPage
 
         _loadMorePlugin.cancelLoad()
@@ -104,7 +104,7 @@ private class PagePluginImpl<T>(
         result.map { }
     }
 
-    private val _loadMorePlugin = DataPlugin<Unit> {
+    private val _loadMorePlugin = DataPlugin(Unit) {
         val page = state.value.page + 1
 
         val result = onLoad(page)

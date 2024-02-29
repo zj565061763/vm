@@ -51,13 +51,13 @@ class DataPluginTest {
         ) {
             awaitItem().let { state ->
                 assertEquals(false, state.isLoading)
-                assertEquals(null, state.data)
+                assertEquals(0, state.data)
                 assertEquals(null, state.result)
             }
 
             awaitItem().let { state ->
                 assertEquals(true, state.isLoading)
-                assertEquals(null, state.data)
+                assertEquals(0, state.data)
                 assertEquals(null, state.result)
             }
 
@@ -84,7 +84,7 @@ class DataPluginTest {
         ) {
             awaitItem().let { state ->
                 assertEquals(false, state.isLoading)
-                assertEquals(null, state.data)
+                assertEquals(0, state.data)
                 assertEquals(null, state.result)
             }
 
@@ -105,7 +105,7 @@ class DataPluginTest {
         ) {
             awaitItem().let { state ->
                 assertEquals(false, state.isLoading)
-                assertEquals(null, state.data)
+                assertEquals(0, state.data)
                 assertEquals(null, state.result)
             }
         }
@@ -120,13 +120,13 @@ class DataPluginTest {
         ) {
             awaitItem().let { state ->
                 assertEquals(false, state.isLoading)
-                assertEquals(null, state.data)
+                assertEquals(0, state.data)
                 assertEquals(null, state.result)
             }
 
             awaitItem().let { state ->
                 assertEquals(true, state.isLoading)
-                assertEquals(null, state.data)
+                assertEquals(0, state.data)
                 assertEquals(null, state.result)
             }
 
@@ -169,9 +169,9 @@ private suspend fun TestScope.testLoad(
 
 @VisibleForTesting
 private class DataPluginViewModel : PluginViewModel<Unit>() {
-    val dataPlugin = DataPlugin { loadData() }.register()
-
     private var _count = 0
+
+    val dataPlugin = DataPlugin(_count) { loadData() }.register()
 
     override suspend fun handleIntent(intent: Unit) {}
 
