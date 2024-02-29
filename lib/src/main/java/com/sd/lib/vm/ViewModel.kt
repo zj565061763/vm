@@ -56,18 +56,11 @@ abstract class FViewModel<I> : ViewModel() {
      * 触发意图
      */
     fun dispatch(intent: I) {
-        viewModelScope.launch {
-            dispatchAwait(intent)
-        }
-    }
-
-    /**
-     * 触发意图
-     */
-    suspend fun dispatchAwait(intent: I) {
         if (isDestroyed) return
-        if (isVMActive || intent is IgnoreActiveIntent) {
-            handleIntent(intent)
+        viewModelScope.launch {
+            if (isVMActive || intent is IgnoreActiveIntent) {
+                handleIntent(intent)
+            }
         }
     }
 
