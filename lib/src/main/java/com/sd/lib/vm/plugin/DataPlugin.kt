@@ -6,17 +6,6 @@ import com.sd.lib.vm.FViewModel
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-data class DataState<T>(
-    /** 数据 */
-    val data: T? = null,
-
-    /** 数据结果 */
-    val result: Result<Unit>? = null,
-
-    /** 是否正在加载中 */
-    val isLoading: Boolean = false,
-)
-
 interface DataPlugin<T> : StatePlugin<DataState<T>> {
     /**
      * 加载数据，如果上一次请求还未完成，再次调用此方法，则上一次的请求会被取消
@@ -45,6 +34,32 @@ fun <T> DataPlugin(
         stater = stater,
         onLoad = onLoad,
     )
+}
+
+data class DataState<T>(
+    /** 数据 */
+    val data: T? = null,
+
+    /** 数据结果 */
+    val result: Result<Unit>? = null,
+
+    /** 是否正在加载中 */
+    val isLoading: Boolean = false,
+)
+
+inline fun <T> DataState<T>.onSuccess(action: (data: T) -> Unit): DataState<T> {
+    result?.onSuccess { data?.let(action) }
+    return this
+}
+
+inline fun <T> DataState<T>.onSuccessNullable(action: (data: T?) -> Unit): DataState<T> {
+    result?.onSuccess { action(data) }
+    return this
+}
+
+inline fun <T> DataState<T>.onFailure(action: (exception: Throwable) -> Unit): DataState<T> {
+    result?.onFailure { action(it) }
+    return this
 }
 
 private class DataPluginImpl<T>(

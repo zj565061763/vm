@@ -24,6 +24,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sd.demo.vm.model.UserModel
 import com.sd.lib.vm.PluginViewModel
 import com.sd.lib.vm.plugin.DataPlugin
+import com.sd.lib.vm.plugin.onFailure
+import com.sd.lib.vm.plugin.onSuccess
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import java.util.UUID
@@ -44,7 +46,7 @@ private fun Content(
     modifier: Modifier = Modifier,
     vm: MyDataViewModel = viewModel()
 ) {
-    val userData by vm.data.state.collectAsStateWithLifecycle()
+    val state by vm.data.state.collectAsStateWithLifecycle()
 
     Column(
         modifier = modifier.fillMaxSize(),
@@ -55,7 +57,7 @@ private fun Content(
             modifier = Modifier.widthIn(100.dp),
             onClick = { vm.data.load() },
         ) {
-            if (userData.isLoading) {
+            if (state.isLoading) {
                 CircularProgressIndicator(
                     modifier = Modifier.size(10.dp),
                     color = LocalContentColor.current,
@@ -66,7 +68,7 @@ private fun Content(
             }
         }
 
-        AnimatedVisibility(visible = userData.isLoading) {
+        AnimatedVisibility(visible = state.isLoading) {
             Button(
                 modifier = Modifier.widthIn(100.dp),
                 onClick = { vm.data.cancelLoad() },
@@ -75,14 +77,14 @@ private fun Content(
             }
         }
 
-        userData.data?.let {
+        state.data?.let {
             Text(text = it.name)
         }
 
-        userData.result?.onSuccess {
+        state.onSuccess {
             Text(text = "Success")
         }
-        userData.result?.onFailure {
+        state.onFailure {
             Text(text = "Failure:$it")
         }
     }
