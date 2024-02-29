@@ -1,10 +1,12 @@
 package com.sd.lib.vm.plugin
 
-import com.sd.lib.vm.AbsViewModelPlugin
 import com.sd.lib.vm.FViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 /**
@@ -28,11 +30,17 @@ interface PagePlugin<T> : StatePlugin<PageState<T>> {
 
     /**
      * 加载更多数据
+     *
+     * @param notifyLoadingMore 是否通知[PageState.isLoadingMore]
+     * @param ignoreActive 是否忽略激活状态[FViewModel.isActiveFlow]
      */
-    fun loadMore()
+    fun loadMore(
+        notifyLoadingMore: Boolean = true,
+        ignoreActive: Boolean = false,
+    )
 
     data class Data<T>(
-        /** 数据 */
+        /** 所有页的数据 */
         val data: List<T>,
 
         /** 本页实际加载到的数据个数 */
@@ -45,31 +53,29 @@ interface PagePlugin<T> : StatePlugin<PageState<T>> {
 
 /**
  * [PagePlugin]
+ *
+ * @param refreshPage 刷新数据的页码，例如数据源规定页码从1开始，那么此参数就为1
+ * @param onLoad 数据加载回调
  */
 fun <T> PagePlugin(
-    /** 状态管理 */
-    stater: Stater<PageState<T>> = Stater(PageState()),
-    /** 刷新数据的页码，例如数据源规定页码从1开始，那么此参数就为1 */
     refreshPage: Int = 1,
-    /** 加载回调 */
     onLoad: suspend (page: Int) -> Result<PagePlugin.Data<T>>,
 ): PagePlugin<T> {
     return PagePluginImpl(
-        stater = stater,
         refreshPage = refreshPage,
         onLoad = onLoad,
     )
 }
 
 data class PageState<T>(
-    /** 数据 */
+    /** 所有页的数据 */
     val data: List<T> = emptyList(),
+
+    /** 当前页码 */
+    val page: Int = 0,
 
     /** 当前页码的数据结果 */
     val result: Result<Unit>? = null,
-
-    /** 当前页码 */
-    val currentPage: Int = 0,
 
     /** 是否还有更多数据 */
     val hasMore: Boolean = false,
@@ -81,35 +87,34 @@ data class PageState<T>(
     val isLoadingMore: Boolean = false,
 )
 
+//---------- impl ----------
+
 private class PagePluginImpl<T>(
-    /** 状态管理 */
-    private val stater: Stater<PageState<T>>,
-    /** 刷新数据的页码，例如数据源规定页码从1开始，那么此参数就为1 */
     override val refreshPage: Int,
-    /** 加载回调 */
     private val onLoad: suspend (page: Int) -> Result<PagePlugin.Data<T>>,
-) : AbsViewModelPlugin(), PagePlugin<T> {
+) : ViewModelPlugin(), PagePlugin<T> {
 
-    /** 刷新 */
-    private val _refreshPlugin = DataPlugin {
-        // 刷新之前，取消加载更多
-        _loadMorePlugin.cancelLoad()
+    private val _refreshPlugin = DataPlugin<Unit> {
         val page = refreshPage
-        onLoad(page).also { result ->
-            handleLoadResult(result, page)
-        }.map { }
+
+        _loadMorePlugin.cancelLoad()
+        val result = onLoad(page)
+        handleLoadResult(result, page)
+
+        result.map { }
     }
 
-    /** 加载更多 */
-    private val _loadMorePlugin = DataPlugin {
-        val page = state.value.currentPage + 1
-        onLoad(page).also { result ->
-            handleLoadResult(result, page)
-        }.map { }
+    private val _loadMorePlugin = DataPlugin<Unit> {
+        val page = state.value.page + 1
+
+        val result = onLoad(page)
+        handleLoadResult(result, page)
+
+        result.map { }
     }
 
-    override val state: StateFlow<PageState<T>>
-        get() = stater.state
+    private val _state = MutableStateFlow(PageState<T>())
+    override val state: StateFlow<PageState<T>> = _state.asStateFlow()
 
     override fun refresh(
         notifyRefreshing: Boolean,
@@ -121,7 +126,10 @@ private class PagePluginImpl<T>(
         )
     }
 
-    override fun loadMore() {
+    override fun loadMore(
+        notifyLoadingMore: Boolean,
+        ignoreActive: Boolean,
+    ) {
         with(state.value) {
             if (isRefreshing || isLoadingMore) {
                 return
@@ -129,8 +137,8 @@ private class PagePluginImpl<T>(
         }
 
         _loadMorePlugin.load(
-            notifyLoading = true,
-            ignoreActive = false,
+            notifyLoading = notifyLoadingMore,
+            ignoreActive = ignoreActive,
         )
     }
 
@@ -144,25 +152,21 @@ private class PagePluginImpl<T>(
                 refreshPage
             } else {
                 // loadMore
-                if (data.pageSize > 0) {
-                    page
-                } else {
-                    page - 1
-                }
+                if (data.pageSize > 0) page else page - 1
             }
 
-            stater.update {
+            _state.update {
                 it.copy(
-                    result = Result.success(Unit),
                     data = data.data,
-                    currentPage = newPage,
+                    page = newPage,
+                    result = Result.success(Unit),
                     hasMore = data.hasMore,
                 )
             }
         }
 
         result.onFailure { throwable ->
-            stater.update {
+            _state.update {
                 it.copy(result = Result.failure(throwable))
             }
         }
@@ -178,7 +182,7 @@ private class PagePluginImpl<T>(
                 .map { it.isLoading }
                 .distinctUntilChanged()
                 .collect { isLoading ->
-                    stater.update {
+                    _state.update {
                         it.copy(isRefreshing = isLoading)
                     }
                 }
@@ -188,7 +192,7 @@ private class PagePluginImpl<T>(
                 .map { it.isLoading }
                 .distinctUntilChanged()
                 .collect { isLoading ->
-                    stater.update {
+                    _state.update {
                         it.copy(isLoadingMore = isLoading)
                     }
                 }

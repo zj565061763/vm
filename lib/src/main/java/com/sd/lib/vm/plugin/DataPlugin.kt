@@ -1,14 +1,16 @@
 package com.sd.lib.vm.plugin
 
 import com.sd.lib.coroutine.FMutator
-import com.sd.lib.vm.AbsViewModelPlugin
 import com.sd.lib.vm.FViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 interface DataPlugin<T> : StatePlugin<DataState<T>> {
     /**
-     * 加载数据，如果上一次请求还未完成，再次调用此方法，则上一次的请求会被取消
+     * 加载数据，如果上一次加载还未完成，再次调用此方法，会取消上一次加载
      *
      * @param notifyLoading 是否通知[DataState.isLoading]
      * @param ignoreActive 是否忽略激活状态[FViewModel.isActiveFlow]
@@ -22,19 +24,26 @@ interface DataPlugin<T> : StatePlugin<DataState<T>> {
      * 取消加载
      */
     fun cancelLoad()
+
+    /**
+     * 更新数据
+     */
+    fun update(function: (T?) -> T?)
 }
 
 fun <T> DataPlugin(
-    /** 状态管理 */
-    stater: Stater<DataState<T>> = Stater(DataState()),
-    /** 加载回调 */
+    /** 初始值 */
+    initial: T? = null,
+    /** 数据加载回调 */
     onLoad: suspend () -> Result<T?>,
 ): DataPlugin<T> {
     return DataPluginImpl(
-        stater = stater,
+        initial = initial,
         onLoad = onLoad,
     )
 }
+
+//---------- state ----------
 
 data class DataState<T>(
     /** 数据 */
@@ -67,18 +76,18 @@ inline fun <T> DataState<T>.onFailure(action: (exception: Throwable) -> Unit): D
     return this
 }
 
+//---------- impl ----------
+
 private class DataPluginImpl<T>(
-    /** 状态管理 */
-    private val stater: Stater<DataState<T>>,
-    /** 加载回调 */
+    initial: T?,
     private val onLoad: suspend () -> Result<T?>,
-) : AbsViewModelPlugin(), DataPlugin<T> {
+) : ViewModelPlugin(), DataPlugin<T> {
 
     /** 互斥修改器 */
     private val _mutator = FMutator()
 
-    override val state: StateFlow<DataState<T>>
-        get() = stater.state
+    private val _state = MutableStateFlow(DataState(data = initial))
+    override val state: StateFlow<DataState<T>> = _state.asStateFlow()
 
     override fun load(
         notifyLoading: Boolean,
@@ -96,6 +105,12 @@ private class DataPluginImpl<T>(
         _mutator.cancel()
     }
 
+    override fun update(function: (T?) -> T?) {
+        _state.update {
+            it.copy(data = function(it.data))
+        }
+    }
+
     private suspend fun loadInternal(
         notifyLoading: Boolean,
         ignoreActive: Boolean,
@@ -105,14 +120,14 @@ private class DataPluginImpl<T>(
             try {
                 _mutator.mutate {
                     if (notifyLoading) {
-                        stater.update { it.copy(isLoading = true) }
+                        _state.update { it.copy(isLoading = true) }
                     }
                     val result = onLoad()
                     handleLoadResult(result)
                 }
             } finally {
                 if (notifyLoading) {
-                    stater.update { it.copy(isLoading = false) }
+                    _state.update { it.copy(isLoading = false) }
                 }
             }
         }
@@ -120,16 +135,16 @@ private class DataPluginImpl<T>(
 
     private fun handleLoadResult(result: Result<T?>) {
         result.onSuccess { data ->
-            stater.update {
+            _state.update {
                 it.copy(
-                    result = Result.success(Unit),
                     data = data,
+                    result = Result.success(Unit),
                 )
             }
         }
 
         result.onFailure { throwable ->
-            stater.update {
+            _state.update {
                 it.copy(result = Result.failure(throwable))
             }
         }

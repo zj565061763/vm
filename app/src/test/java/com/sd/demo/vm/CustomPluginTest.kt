@@ -2,8 +2,8 @@ package com.sd.demo.vm
 
 import android.os.Looper
 import androidx.annotation.VisibleForTesting
-import com.sd.lib.vm.AbsViewModelPlugin
 import com.sd.lib.vm.PluginViewModel
+import com.sd.lib.vm.plugin.ViewModelPlugin
 import io.mockk.every
 import io.mockk.mockkClass
 import io.mockk.mockkStatic
@@ -51,7 +51,7 @@ private class CustomPluginViewModel : PluginViewModel<Unit>() {
     override suspend fun handleIntent(intent: Unit) {}
 }
 
-private class CustomPlugin : AbsViewModelPlugin() {
+private class CustomPlugin : ViewModelPlugin() {
     var count = 0
         private set
 
