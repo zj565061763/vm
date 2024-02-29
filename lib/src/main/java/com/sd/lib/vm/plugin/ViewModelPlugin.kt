@@ -1,6 +1,7 @@
 package com.sd.lib.vm.plugin
 
 import android.os.Looper
+import androidx.annotation.MainThread
 import androidx.lifecycle.viewModelScope
 import com.sd.lib.vm.PluginViewModel
 
@@ -28,14 +29,16 @@ abstract class ViewModelPlugin : PluginViewModel.Plugin {
     }
 
     /**
-     * 初始化(MainThread)
+     * 初始化
      */
-    protected open fun onInit() {}
+    @MainThread
+    protected open fun onInit() = Unit
 
     /**
-     * 销毁(MainThread)
+     * 销毁
      */
-    protected open fun onDestroy() {}
+    @MainThread
+    protected open fun onDestroy() = Unit
 }
 
 private fun checkMainThread() {

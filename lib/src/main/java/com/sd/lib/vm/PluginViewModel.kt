@@ -8,7 +8,7 @@ abstract class PluginViewModel<I> : FViewModel<I>() {
     private val _plugins: MutableSet<Plugin> = hashSetOf()
 
     /**
-     * 注册插件(MainThread)
+     * 注册插件
      */
     @MainThread
     fun <T : Plugin> T.register(): T {
@@ -40,13 +40,13 @@ abstract class PluginViewModel<I> : FViewModel<I>() {
 
     interface Plugin {
         /**
-         * 初始化(MainThread)
+         * 初始化
          */
         @MainThread
         fun notifyInit(viewModel: PluginViewModel<*>)
 
         /**
-         * 销毁(MainThread)
+         * 销毁
          */
         @MainThread
         fun notifyDestroy()

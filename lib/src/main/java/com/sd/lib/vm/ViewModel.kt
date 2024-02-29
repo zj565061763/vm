@@ -72,7 +72,7 @@ abstract class FViewModel<I> : ViewModel() {
     /**
      * 销毁回调，[onCleared]触发
      */
-    protected open fun onDestroy() {}
+    protected open fun onDestroy() = Unit
 
     final override fun onCleared() {
         super.onCleared()
