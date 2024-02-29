@@ -47,6 +47,11 @@ data class DataState<T>(
     val isLoading: Boolean = false,
 )
 
+inline fun <T> DataState<T>.onData(action: (data: T) -> Unit): DataState<T> {
+    data?.let(action)
+    return this
+}
+
 inline fun <T> DataState<T>.onSuccess(action: (data: T) -> Unit): DataState<T> {
     result?.onSuccess { data?.let(action) }
     return this

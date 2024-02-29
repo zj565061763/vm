@@ -24,6 +24,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sd.demo.vm.model.UserModel
 import com.sd.lib.vm.PluginViewModel
 import com.sd.lib.vm.plugin.DataPlugin
+import com.sd.lib.vm.plugin.onData
 import com.sd.lib.vm.plugin.onFailure
 import com.sd.lib.vm.plugin.onSuccess
 import kotlinx.coroutines.CancellationException
@@ -77,13 +78,14 @@ private fun Content(
             }
         }
 
-        state.data?.let {
+        state.onData {
             Text(text = it.name)
         }
 
         state.onSuccess {
             Text(text = "Success")
         }
+
         state.onFailure {
             Text(text = "Failure:$it")
         }
