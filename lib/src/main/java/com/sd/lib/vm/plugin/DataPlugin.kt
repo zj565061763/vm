@@ -8,6 +8,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+/**
+ * 数据加载
+ */
 interface DataPlugin<T> : StatePlugin<DataState<T>> {
     /**
      * 加载数据，如果上一次加载还未完成，再次调用此方法，会取消上一次加载
@@ -31,10 +34,14 @@ interface DataPlugin<T> : StatePlugin<DataState<T>> {
     fun update(function: (T?) -> T?)
 }
 
+/**
+ * [DataPlugin]
+ *
+ * @param initial 初始值
+ * @param onLoad 数据加载回调
+ */
 fun <T> DataPlugin(
-    /** 初始值 */
     initial: T? = null,
-    /** 数据加载回调 */
     onLoad: suspend () -> Result<T?>,
 ): DataPlugin<T> {
     return DataPluginImpl(
