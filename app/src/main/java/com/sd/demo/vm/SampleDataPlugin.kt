@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -87,7 +88,10 @@ private fun Content(
         }
 
         state.onFailure {
-            Text(text = "Failure:$it")
+            Text(
+                text = "Failure:$it",
+                color = MaterialTheme.colorScheme.error,
+            )
         }
     }
 }
@@ -116,7 +120,8 @@ class MyDataViewModel : PluginViewModel<Unit>() {
             throw e
         }
 
-        val success = _count % 2 == 0
+        val count = _count
+        val success = count % 2 == 0
         _count++
 
         return if (success) {
@@ -124,7 +129,7 @@ class MyDataViewModel : PluginViewModel<Unit>() {
             Result.success(UserModel(name = uuid))
         } else {
             logMsg { "load data failure  $uuid" }
-            Result.failure(Exception("count $_count"))
+            Result.failure(Exception("count $count"))
         }
     }
 }
