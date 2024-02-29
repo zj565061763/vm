@@ -97,6 +97,8 @@ class MyDataViewModel : PluginViewModel<Unit>() {
     /** 数据 */
     val data = DataPlugin { loadData() }.register()
 
+    private var _count = 0
+
     override suspend fun handleIntent(intent: Unit) {}
 
     /**
@@ -114,8 +116,15 @@ class MyDataViewModel : PluginViewModel<Unit>() {
             throw e
         }
 
-        return Result.success(UserModel(name = uuid)).also {
+        val success = _count % 2 == 0
+        _count++
+
+        return if (success) {
             logMsg { "load data success  $uuid" }
+            Result.success(UserModel(name = uuid))
+        } else {
+            logMsg { "load data failure  $uuid" }
+            Result.failure(Exception("count $_count"))
         }
     }
 }
