@@ -13,7 +13,7 @@ interface DataPlugin<T> : StatePlugin<DataState<T>> {
      * 加载数据，如果上一次加载还未完成，再次调用此方法，会取消上一次加载
      *
      * @param notifyLoading 是否通知[DataState.isLoading]
-     * @param ignoreActive 是否忽略激活状态[FViewModel.isActiveFlow]
+     * @param ignoreActive 是否忽略激活状态[FViewModel.isVMActive]
      */
     fun load(
         notifyLoading: Boolean = true,

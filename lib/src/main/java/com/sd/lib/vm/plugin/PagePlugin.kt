@@ -21,7 +21,7 @@ interface PagePlugin<T> : StatePlugin<PageState<T>> {
      * 刷新数据
      *
      * @param notifyRefreshing 是否通知[PageState.isRefreshing]
-     * @param ignoreActive 是否忽略激活状态[FViewModel.isActiveFlow]
+     * @param ignoreActive 是否忽略激活状态[FViewModel.isVMActive]
      */
     fun refresh(
         notifyRefreshing: Boolean = true,
@@ -32,7 +32,7 @@ interface PagePlugin<T> : StatePlugin<PageState<T>> {
      * 加载更多数据
      *
      * @param notifyLoadingMore 是否通知[PageState.isLoadingMore]
-     * @param ignoreActive 是否忽略激活状态[FViewModel.isActiveFlow]
+     * @param ignoreActive 是否忽略激活状态[FViewModel.isVMActive]
      */
     fun loadMore(
         notifyLoadingMore: Boolean = true,
