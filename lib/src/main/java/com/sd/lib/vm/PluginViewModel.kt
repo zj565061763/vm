@@ -5,25 +5,25 @@ import androidx.annotation.MainThread
 
 abstract class PluginViewModel<I> : FViewModel<I>() {
 
-    private val _plugins: MutableSet<Plugin> = hashSetOf()
+    private val _plugins: MutableSet<LifecyclePlugin> = hashSetOf()
 
     /**
      * 注册插件
      */
     @MainThread
-    fun <T : Plugin> T.register(): T {
-        return this.also { plugin ->
-            if (!isDestroyed) {
-                if (_plugins.add(plugin)) {
-                    plugin.notifyInit(this@PluginViewModel)
-                }
-            }
+    protected fun <T : Plugin> T.register(): T {
+        return this.also { registerPlugin(it) }
+    }
+
+    @MainThread
+    internal fun registerPlugin(plugin: Plugin) {
+        if (isDestroyed) return
+        check(plugin is LifecyclePlugin)
+        if (_plugins.add(plugin)) {
+            plugin.notifyInit(this@PluginViewModel)
         }
     }
 
-    /**
-     * 销毁并清空插件
-     */
     @MainThread
     private fun destroyPlugins() {
         if (isDestroyed) {
@@ -38,17 +38,19 @@ abstract class PluginViewModel<I> : FViewModel<I>() {
         destroyPlugins()
     }
 
-    interface Plugin {
-        /**
-         * 初始化
-         */
-        @MainThread
-        fun notifyInit(viewModel: PluginViewModel<*>)
+    interface Plugin
+}
 
-        /**
-         * 销毁
-         */
-        @MainThread
-        fun notifyDestroy()
-    }
+internal interface LifecyclePlugin : PluginViewModel.Plugin {
+    /**
+     * 初始化
+     */
+    @MainThread
+    fun notifyInit(viewModel: PluginViewModel<*>)
+
+    /**
+     * 销毁
+     */
+    @MainThread
+    fun notifyDestroy()
 }

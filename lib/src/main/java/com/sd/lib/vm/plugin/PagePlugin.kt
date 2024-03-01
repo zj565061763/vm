@@ -343,8 +343,8 @@ private class PagePluginImpl<T>(
 
     override fun onInit() {
         super.onInit()
-        _refreshPlugin.notifyInit(vm)
-        _loadMorePlugin.notifyInit(vm)
+        _refreshPlugin.register()
+        _loadMorePlugin.register()
 
         viewModelScope.launch {
             _refreshPlugin.state
@@ -366,11 +366,5 @@ private class PagePluginImpl<T>(
                     }
                 }
         }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        _refreshPlugin.notifyDestroy()
-        _loadMorePlugin.notifyDestroy()
     }
 }

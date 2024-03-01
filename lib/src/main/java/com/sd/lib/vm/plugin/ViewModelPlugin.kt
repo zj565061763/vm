@@ -3,6 +3,7 @@ package com.sd.lib.vm.plugin
 import android.os.Looper
 import androidx.annotation.MainThread
 import androidx.lifecycle.viewModelScope
+import com.sd.lib.vm.LifecyclePlugin
 import com.sd.lib.vm.PluginViewModel
 import kotlinx.coroutines.flow.StateFlow
 
@@ -11,7 +12,7 @@ interface StatePlugin<T> : PluginViewModel.Plugin {
     val state: StateFlow<T>
 }
 
-abstract class ViewModelPlugin : PluginViewModel.Plugin {
+abstract class ViewModelPlugin : LifecyclePlugin {
     private var _vm: PluginViewModel<*>? = null
 
     protected val vm get() = checkNotNull(_vm) { "Plugin has not been initialized." }
@@ -32,6 +33,14 @@ abstract class ViewModelPlugin : PluginViewModel.Plugin {
     final override fun notifyDestroy() {
         checkMainThread()
         onDestroy()
+    }
+
+    /**
+     * 注册插件
+     */
+    @MainThread
+    protected fun <T : PluginViewModel.Plugin> T.register() {
+        vm.registerPlugin(this)
     }
 
     /**
