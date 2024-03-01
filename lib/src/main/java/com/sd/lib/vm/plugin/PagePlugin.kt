@@ -106,7 +106,7 @@ data class PageState<T>(
     /** 是否还有更多数据 */
     val hasMore: Boolean = false,
 
-    /** 当前页码是否是刷新页码 */
+    /** 当前页码是否是刷新页码，null-未知，true-刷新页码，false-更多页码 */
     val isRefreshPage: Boolean? = null,
 
     /** 是否正在刷新 */
