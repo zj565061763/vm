@@ -30,11 +30,6 @@ interface DataPlugin<T> : StatePlugin<DataState<T>> {
      */
     fun cancelLoad()
 
-    /**
-     * 更新数据
-     */
-    fun update(function: (T) -> T)
-
     interface LoadScope<T> {
         /** 当前数据状态 */
         val currentState: DataState<T>
@@ -140,12 +135,6 @@ private class DataPluginImpl<T>(
 
     override fun cancelLoad() {
         _mutator.cancel()
-    }
-
-    override fun update(function: (T) -> T) {
-        _state.update {
-            it.copy(data = function(it.data))
-        }
     }
 
     /**
