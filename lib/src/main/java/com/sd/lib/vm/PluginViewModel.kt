@@ -2,10 +2,11 @@ package com.sd.lib.vm
 
 import androidx.annotation.CallSuper
 import androidx.annotation.MainThread
+import com.sd.lib.vm.plugin.ViewModelPlugin
 
 abstract class PluginViewModel<I> : FViewModel<I>() {
 
-    private val _plugins: MutableSet<LifecyclePlugin> = hashSetOf()
+    private val _plugins: MutableSet<ViewModelPlugin> = hashSetOf()
 
     /**
      * 注册插件
@@ -18,7 +19,7 @@ abstract class PluginViewModel<I> : FViewModel<I>() {
     @MainThread
     internal fun registerPlugin(plugin: Plugin) {
         if (isDestroyed) return
-        check(plugin is LifecyclePlugin)
+        check(plugin is ViewModelPlugin)
         if (_plugins.add(plugin)) {
             plugin.notifyInit(this@PluginViewModel)
         }
@@ -39,18 +40,4 @@ abstract class PluginViewModel<I> : FViewModel<I>() {
     }
 
     interface Plugin
-}
-
-internal interface LifecyclePlugin : PluginViewModel.Plugin {
-    /**
-     * 初始化
-     */
-    @MainThread
-    fun notifyInit(viewModel: PluginViewModel<*>)
-
-    /**
-     * 销毁
-     */
-    @MainThread
-    fun notifyDestroy()
 }
