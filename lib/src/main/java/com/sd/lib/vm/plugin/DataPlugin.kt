@@ -38,14 +38,17 @@ interface DataPlugin<T> : StatePlugin<DataState<T>> {
  * [DataPlugin]
  *
  * @param initial 初始值
+ * @param canLoad 是否可以加载数据
  * @param onLoad 数据加载回调
  */
 fun <T> DataPlugin(
     initial: T,
+    canLoad: suspend () -> Boolean = { true },
     onLoad: suspend () -> Result<T>,
 ): DataPlugin<T> {
     return DataPluginImpl(
         initial = initial,
+        canLoad = canLoad,
         onLoad = onLoad,
     )
 }
@@ -100,6 +103,7 @@ inline fun <T> DataState<T>.onFailure(action: (exception: Throwable) -> Unit): D
 
 private class DataPluginImpl<T>(
     initial: T,
+    private val canLoad: suspend () -> Boolean,
     private val onLoad: suspend () -> Result<T>,
 ) : ViewModelPlugin(), DataPlugin<T> {
 
@@ -137,17 +141,19 @@ private class DataPluginImpl<T>(
     ) {
         if (isDestroyed) return
         if (isVMActive || ignoreActive) {
-            try {
-                _mutator.mutate {
-                    if (notifyLoading) {
-                        _state.update { it.copy(isLoading = true) }
+            if (canLoad()) {
+                try {
+                    _mutator.mutate {
+                        if (notifyLoading) {
+                            _state.update { it.copy(isLoading = true) }
+                        }
+                        val result = onLoad()
+                        handleLoadResult(result)
                     }
-                    val result = onLoad()
-                    handleLoadResult(result)
-                }
-            } finally {
-                if (notifyLoading) {
-                    _state.update { it.copy(isLoading = false) }
+                } finally {
+                    if (notifyLoading) {
+                        _state.update { it.copy(isLoading = false) }
+                    }
                 }
             }
         }
