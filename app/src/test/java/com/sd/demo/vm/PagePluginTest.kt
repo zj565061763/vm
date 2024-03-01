@@ -45,7 +45,7 @@ class PagePluginTest {
     fun `test refresh`() = runTest {
         testRefresh(
             initialActive = true,
-            notifyRefreshing = true,
+            notifyLoading = true,
             ignoreActive = false
         ) {
             awaitItem().let { state ->
@@ -90,7 +90,7 @@ class PagePluginTest {
     fun `test refresh notifyRefreshing false`() = runTest {
         testRefresh(
             initialActive = true,
-            notifyRefreshing = false,
+            notifyLoading = false,
             ignoreActive = false
         ) {
             awaitItem().let { state ->
@@ -117,7 +117,7 @@ class PagePluginTest {
     fun `test refresh inactive`() = runTest {
         testRefresh(
             initialActive = false,
-            notifyRefreshing = true,
+            notifyLoading = true,
             ignoreActive = false
         ) {
             awaitItem().let { state ->
@@ -135,7 +135,7 @@ class PagePluginTest {
     fun `test refresh inactive ignore`() = runTest {
         testRefresh(
             initialActive = false,
-            notifyRefreshing = true,
+            notifyLoading = true,
             ignoreActive = true
         ) {
             awaitItem().let { state ->
@@ -181,7 +181,7 @@ class PagePluginTest {
     fun `test load more`() = runTest {
         testLoadMore(
             initialActive = true,
-            notifyLoadingMore = true,
+            notifyLoading = true,
             ignoreActive = false,
         ) {
             awaitItem().let { state ->
@@ -226,7 +226,7 @@ class PagePluginTest {
     fun `test load more notifyLoadingMore false`() = runTest {
         testLoadMore(
             initialActive = true,
-            notifyLoadingMore = false,
+            notifyLoading = false,
             ignoreActive = false
         ) {
             awaitItem().let { state ->
@@ -253,7 +253,7 @@ class PagePluginTest {
     fun `test load more inactive`() = runTest {
         testLoadMore(
             initialActive = false,
-            notifyLoadingMore = true,
+            notifyLoading = true,
             ignoreActive = false,
         ) {
             awaitItem().let { state ->
@@ -271,7 +271,7 @@ class PagePluginTest {
     fun `test load more inactive ignore`() = runTest {
         testLoadMore(
             initialActive = false,
-            notifyLoadingMore = true,
+            notifyLoading = true,
             ignoreActive = true,
         ) {
             awaitItem().let { state ->
@@ -316,7 +316,7 @@ class PagePluginTest {
 @OptIn(ExperimentalCoroutinesApi::class)
 private suspend fun TestScope.testRefresh(
     initialActive: Boolean,
-    notifyRefreshing: Boolean,
+    notifyLoading: Boolean,
     ignoreActive: Boolean,
     validate: suspend TurbineTestContext<PageState<Int>>.() -> Unit,
 ) {
@@ -325,7 +325,7 @@ private suspend fun TestScope.testRefresh(
 
     vm.plugin.state.test {
         vm.plugin.refresh(
-            notifyLoading = notifyRefreshing,
+            notifyLoading = notifyLoading,
             ignoreActive = ignoreActive,
         )
         advanceUntilIdle()
@@ -336,7 +336,7 @@ private suspend fun TestScope.testRefresh(
 @OptIn(ExperimentalCoroutinesApi::class)
 private suspend fun TestScope.testLoadMore(
     initialActive: Boolean,
-    notifyLoadingMore: Boolean,
+    notifyLoading: Boolean,
     ignoreActive: Boolean,
     validate: suspend TurbineTestContext<PageState<Int>>.() -> Unit,
 ) {
@@ -345,7 +345,7 @@ private suspend fun TestScope.testLoadMore(
 
     vm.plugin.state.test {
         vm.plugin.loadMore(
-            notifyLoading = notifyLoadingMore,
+            notifyLoading = notifyLoading,
             ignoreActive = ignoreActive,
         )
         advanceUntilIdle()
