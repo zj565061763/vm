@@ -112,13 +112,13 @@ class MyDataViewModel : PluginViewModel<Unit>() {
      */
     private suspend fun loadData(): Result<UserModel> {
         val uuid = UUID.randomUUID().toString()
-        logMsg { "load data start $uuid" }
+        logMsg { "load start $uuid $_count" }
 
         try {
             // 模拟加载数据
             delay(3_000)
         } catch (e: CancellationException) {
-            logMsg { "load data cancel  $uuid" }
+            logMsg { "load cancel $uuid" }
             throw e
         }
 
@@ -127,10 +127,10 @@ class MyDataViewModel : PluginViewModel<Unit>() {
         _count++
 
         return if (success) {
-            logMsg { "load data success  $uuid" }
+            logMsg { "load success $uuid" }
             Result.success(UserModel(name = uuid))
         } else {
-            logMsg { "load data failure  $uuid" }
+            logMsg { "load failure $uuid" }
             Result.failure(Exception("count $count"))
         }
     }
