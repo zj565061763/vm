@@ -17,10 +17,12 @@ interface DataPlugin<T> : StatePlugin<DataState<T>> {
      *
      * @param notifyLoading 是否通知[DataState.isLoading]
      * @param ignoreActive 是否忽略激活状态[FViewModel.isVMActive]
+     * @param canLoad 是否可以加载数据
      */
     fun load(
         notifyLoading: Boolean = true,
         ignoreActive: Boolean = false,
+        canLoad: (suspend LoadScope<T>.() -> Boolean)? = null,
     )
 
     /**
@@ -125,11 +127,13 @@ private class DataPluginImpl<T>(
     override fun load(
         notifyLoading: Boolean,
         ignoreActive: Boolean,
+        canLoad: (suspend DataPlugin.LoadScope<T>.() -> Boolean)?,
     ) {
         viewModelScope.launch {
             loadData(
                 notifyLoading = notifyLoading,
                 ignoreActive = ignoreActive,
+                canLoad = canLoad,
             )
         }
     }
@@ -150,11 +154,12 @@ private class DataPluginImpl<T>(
     private suspend fun loadData(
         notifyLoading: Boolean,
         ignoreActive: Boolean,
+        canLoad: (suspend DataPlugin.LoadScope<T>.() -> Boolean)?,
     ) {
         if (isDestroyed) return
         if (isVMActive || ignoreActive) {
-            val canLoad = with(_loadScopeImpl) { canLoad() }
-            if (canLoad) {
+            val canLoadBlock = canLoad ?: this@DataPluginImpl.canLoad
+            if (with(_loadScopeImpl) { canLoadBlock() }) {
                 try {
                     _mutator.mutate {
                         if (notifyLoading) {
