@@ -25,6 +25,7 @@ abstract class ViewModelPlugin : PluginViewModel.Plugin {
     /**
      * 通知初始化
      */
+    @MainThread
     internal fun notifyInit(viewModel: PluginViewModel<*>) {
         checkMainThread()
         if (_vm != null) error("Plugin has been initialized.")
@@ -35,6 +36,7 @@ abstract class ViewModelPlugin : PluginViewModel.Plugin {
     /**
      * 通知销毁
      */
+    @MainThread
     internal fun notifyDestroy() {
         checkMainThread()
         onDestroy()

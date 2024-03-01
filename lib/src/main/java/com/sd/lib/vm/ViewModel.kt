@@ -71,7 +71,7 @@ open class FViewModel<I> : ViewModel() {
     protected open suspend fun handleIntent(intent: I) = Unit
 
     /**
-     * 销毁回调，[onCleared]触发
+     * 销毁回调
      */
     protected open fun onDestroy() = Unit
 
