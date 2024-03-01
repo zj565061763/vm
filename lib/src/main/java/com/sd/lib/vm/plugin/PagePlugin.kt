@@ -66,11 +66,13 @@ interface PagePlugin<T> : StatePlugin<PageState<T>> {
 /**
  * [PagePlugin]
  *
+ * @param initial 初始值
  * @param refreshPage 刷新数据的页码，例如数据源规定页码从1开始，那么此参数就为1
  * @param canLoad 是否可以加载数据
  * @param onLoad 数据加载回调
  */
 fun <T> PagePlugin(
+    initial: List<T> = emptyList(),
     refreshPage: Int = 1,
     canLoad: suspend PagePlugin.LoadScope<T>.(page: Int) -> Boolean = { page ->
         if (page == this.refreshPage) {
@@ -82,6 +84,7 @@ fun <T> PagePlugin(
     onLoad: suspend PagePlugin.LoadScope<T>.(page: Int) -> Result<PagePlugin.Data<T>>,
 ): PagePlugin<T> {
     return PagePluginImpl(
+        initial = initial,
         refreshPage = refreshPage,
         canLoad = canLoad,
         onLoad = onLoad,
@@ -92,7 +95,7 @@ fun <T> PagePlugin(
 
 data class PageState<T>(
     /** 所有页的数据 */
-    val data: List<T> = emptyList(),
+    val data: List<T>,
 
     /** 当前页码 */
     val page: Int = 0,
@@ -113,6 +116,7 @@ data class PageState<T>(
 //---------- impl ----------
 
 private class PagePluginImpl<T>(
+    initial: List<T>,
     override val refreshPage: Int,
     private val canLoad: suspend PagePlugin.LoadScope<T>.(page: Int) -> Boolean,
     private val onLoad: suspend PagePlugin.LoadScope<T>.(page: Int) -> Result<PagePlugin.Data<T>>,
@@ -128,7 +132,7 @@ private class PagePluginImpl<T>(
         loadData(page)
     }
 
-    private val _state = MutableStateFlow(PageState<T>())
+    private val _state = MutableStateFlow(PageState(data = initial))
     override val state: StateFlow<PageState<T>> = _state.asStateFlow()
 
     private val _loadScopeImpl = object : PagePlugin.LoadScope<T> {
