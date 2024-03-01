@@ -76,7 +76,7 @@ fun <T> PagePlugin(
         if (page == this.refreshPage) {
             true
         } else {
-            !this.currentState.isRefreshing && !this.currentState.isLoadingMore
+            !currentState.isLoadingMore
         }
     },
     onLoad: suspend PagePlugin.LoadScope<T>.(page: Int) -> Result<PagePlugin.Data<T>>,
