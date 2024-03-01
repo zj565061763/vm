@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.drop
@@ -78,6 +79,7 @@ abstract class FViewModel<I> : ViewModel() {
         super.onCleared()
         isDestroyed = true
         _isVMActive = false
+        singleDispatcher.cancel()
         onDestroy()
     }
 }
