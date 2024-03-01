@@ -105,8 +105,6 @@ class MyDataViewModel : PluginViewModel<Unit>() {
     /** 数据 */
     val data = DataPlugin(UserModel(name = "")) { loadData() }.register()
 
-    override suspend fun handleIntent(intent: Unit) {}
-
     /**
      * 加载数据
      */

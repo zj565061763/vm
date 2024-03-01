@@ -53,6 +53,7 @@ private fun Content(
 
 internal class MyViewModel : FViewModel<MyViewModel.Intent>() {
     override suspend fun handleIntent(intent: Intent) {
+        super.handleIntent(intent)
         logMsg { "handleIntent:$intent ${Thread.currentThread().name}" }
     }
 

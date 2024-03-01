@@ -4,7 +4,7 @@ import androidx.annotation.CallSuper
 import androidx.annotation.MainThread
 import com.sd.lib.vm.plugin.ViewModelPlugin
 
-abstract class PluginViewModel<I> : FViewModel<I>() {
+open class PluginViewModel<I> : FViewModel<I>() {
 
     private val _plugins: MutableSet<ViewModelPlugin> = hashSetOf()
 

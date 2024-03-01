@@ -188,8 +188,6 @@ internal class MyPageViewModel : PluginViewModel<Unit>() {
         loadUsers(page, page == currentState.refreshPage)
     }.register()
 
-    override suspend fun handleIntent(intent: Unit) {}
-
     /**
      * 加载用户分页数据
      */

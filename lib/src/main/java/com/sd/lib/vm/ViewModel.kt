@@ -20,7 +20,7 @@ interface IgnoreActiveIntent
  * 有激活状态的[ViewModel]，默认激活状态为true，可以通过[setActive]来改变激活状态。
  * 当激活状态为false的时候，不处理意图[I]，除非意图是[IgnoreActiveIntent]类型的。
  */
-abstract class FViewModel<I> : ViewModel() {
+open class FViewModel<I> : ViewModel() {
 
     /** 是否已经销毁 */
     @Volatile
@@ -68,7 +68,7 @@ abstract class FViewModel<I> : ViewModel() {
     /**
      * 处理意图，[viewModelScope]触发
      */
-    protected abstract suspend fun handleIntent(intent: I)
+    protected open suspend fun handleIntent(intent: I) = Unit
 
     /**
      * 销毁回调，[onCleared]触发

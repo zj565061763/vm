@@ -47,8 +47,6 @@ class CustomPluginTest {
 @VisibleForTesting
 private class CustomPluginViewModel : PluginViewModel<Unit>() {
     val customPlugin = CustomPlugin().register()
-
-    override suspend fun handleIntent(intent: Unit) {}
 }
 
 private class CustomPlugin : ViewModelPlugin() {

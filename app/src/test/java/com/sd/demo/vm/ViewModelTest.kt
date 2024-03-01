@@ -100,9 +100,7 @@ class ViewModelTest {
 }
 
 @VisibleForTesting
-private class TestViewModel : FViewModel<Unit>() {
-    override suspend fun handleIntent(intent: Unit) {}
-}
+private class TestViewModel : FViewModel<Unit>()
 
 @VisibleForTesting
 private class TestIntentViewModel : FViewModel<TestIntentViewModel.Intent>() {
@@ -110,6 +108,7 @@ private class TestIntentViewModel : FViewModel<TestIntentViewModel.Intent>() {
         private set
 
     override suspend fun handleIntent(intent: Intent) {
+        super.handleIntent(intent)
         when (intent) {
             is Intent.ActiveContent -> count++
             is Intent.IgnoreActiveContent -> count++

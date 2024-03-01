@@ -385,8 +385,6 @@ private class PagePluginViewModel : PluginViewModel<Unit>() {
         loadData(page, page == currentState.refreshPage)
     }.register()
 
-    override suspend fun handleIntent(intent: Unit) {}
-
     private suspend fun loadData(
         page: Int,
         isRefresh: Boolean,

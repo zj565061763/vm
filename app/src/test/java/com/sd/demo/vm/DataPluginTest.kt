@@ -175,8 +175,6 @@ private class DataPluginViewModel : PluginViewModel<Unit>() {
 
     val dataPlugin = DataPlugin(_count) { loadData() }.register()
 
-    override suspend fun handleIntent(intent: Unit) {}
-
     private suspend fun loadData(): Result<Int> {
         delay(1.seconds)
         _count++
