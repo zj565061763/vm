@@ -39,6 +39,14 @@ interface PagePlugin<T> : StatePlugin<PageState<T>> {
         ignoreActive: Boolean = false,
     )
 
+    interface LoadScope<T> {
+        /** 当前数据状态 */
+        val currentState: PageState<T>
+
+        /** 刷新数据的页码，例如数据源规定页码从1开始，那么此参数就为1 */
+        val refreshPage: Int
+    }
+
     data class Data<T>(
         /** 所有页的数据 */
         val data: List<T>,
@@ -59,7 +67,7 @@ interface PagePlugin<T> : StatePlugin<PageState<T>> {
  */
 fun <T> PagePlugin(
     refreshPage: Int = 1,
-    onLoad: suspend (page: Int) -> Result<PagePlugin.Data<T>>,
+    onLoad: suspend PagePlugin.LoadScope<T>.(page: Int) -> Result<PagePlugin.Data<T>>,
 ): PagePlugin<T> {
     return PagePluginImpl(
         refreshPage = refreshPage,
@@ -93,30 +101,26 @@ data class PageState<T>(
 
 private class PagePluginImpl<T>(
     override val refreshPage: Int,
-    private val onLoad: suspend (page: Int) -> Result<PagePlugin.Data<T>>,
+    private val onLoad: suspend PagePlugin.LoadScope<T>.(page: Int) -> Result<PagePlugin.Data<T>>,
 ) : ViewModelPlugin(), PagePlugin<T> {
 
     private val _refreshPlugin = DataPlugin(Unit) {
         val page = refreshPage
-
-        _loadMorePlugin.cancelLoad()
-        val result = onLoad(page)
-        handleLoadResult(result, page)
-
-        result.map { }
+        loadData(page)
     }
 
     private val _loadMorePlugin = DataPlugin(Unit) {
         val page = state.value.page + 1
-
-        val result = onLoad(page)
-        handleLoadResult(result, page)
-
-        result.map { }
+        loadData(page)
     }
 
     private val _state = MutableStateFlow(PageState<T>())
     override val state: StateFlow<PageState<T>> = _state.asStateFlow()
+
+    private val _loadScopeImpl = object : PagePlugin.LoadScope<T> {
+        override val currentState: PageState<T> get() = this@PagePluginImpl.state.value
+        override val refreshPage: Int get() = this@PagePluginImpl.refreshPage
+    }
 
     override fun refresh(
         notifyRefreshing: Boolean,
@@ -142,6 +146,15 @@ private class PagePluginImpl<T>(
             notifyLoading = notifyLoadingMore,
             ignoreActive = ignoreActive,
         )
+    }
+
+    /**
+     * 加载数据
+     */
+    private suspend fun loadData(page: Int): Result<Unit> {
+        val result = with(_loadScopeImpl) { onLoad(page) }
+        handleLoadResult(result, page)
+        return result.map { }
     }
 
     /**
