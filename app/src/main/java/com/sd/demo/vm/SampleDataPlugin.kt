@@ -116,7 +116,7 @@ class MyDataViewModel : PluginViewModel<Unit>() {
 
         try {
             // 模拟加载数据
-            delay(3_000)
+            delay(2_000)
         } catch (e: CancellationException) {
             logMsg { "load cancel $uuid" }
             throw e
