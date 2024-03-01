@@ -17,6 +17,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -52,14 +53,17 @@ private fun Content(
 ) {
     val userPage by vm.userPage.state.collectAsStateWithLifecycle()
 
+    LaunchedEffect(vm.userPage) {
+        vm.userPage.refresh()
+    }
+
     FSwipeRefresh(
         modifier = modifier,
         state = rememberFSwipeRefreshState {
             it.endIndicatorMode = IndicatorMode.Boundary
         },
-        indicatorEnd = {},
         isRefreshingStart = userPage.isRefreshing,
-        isRefreshingEnd = userPage.isLoadingMore,
+        isRefreshingEnd = null,
         onRefreshStart = { vm.userPage.refresh() },
         onRefreshEnd = { vm.userPage.loadMore() },
     ) {
@@ -186,5 +190,9 @@ internal class MyPageViewModel : PluginViewModel<Unit>() {
         )
 
         return Result.success(data)
+    }
+
+    init {
+        userPage.refresh()
     }
 }
