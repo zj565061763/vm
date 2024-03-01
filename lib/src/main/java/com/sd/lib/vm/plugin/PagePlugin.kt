@@ -148,7 +148,12 @@ private class PagePluginImpl<T>(
                 canLoadData(
                     page = refreshPage,
                     canLoad = canLoad,
-                )
+                ).also {
+                    if (it) {
+                        // 刷新之前取消加载更多
+                        _loadMorePlugin.cancelLoad()
+                    }
+                }
             },
         )
     }
