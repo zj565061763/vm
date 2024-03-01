@@ -4,6 +4,12 @@ import android.os.Looper
 import androidx.annotation.MainThread
 import androidx.lifecycle.viewModelScope
 import com.sd.lib.vm.PluginViewModel
+import kotlinx.coroutines.flow.StateFlow
+
+interface StatePlugin<T> : PluginViewModel.Plugin {
+    /** 状态 */
+    val state: StateFlow<T>
+}
 
 abstract class ViewModelPlugin : PluginViewModel.Plugin {
     private var _vm: PluginViewModel<*>? = null
