@@ -34,6 +34,7 @@ interface DataPlugin<T> : StatePlugin<DataState<T>> {
     fun update(function: (T) -> T)
 
     interface LoadScope<T> {
+        /** 当前数据状态 */
         val currentState: DataState<T>
     }
 }
@@ -118,8 +119,7 @@ private class DataPluginImpl<T>(
     override val state: StateFlow<DataState<T>> = _state.asStateFlow()
 
     private val _loadScopeImpl = object : DataPlugin.LoadScope<T> {
-        override val currentState: DataState<T>
-            get() = this@DataPluginImpl.state.value
+        override val currentState: DataState<T> get() = this@DataPluginImpl.state.value
     }
 
     override fun load(
@@ -127,7 +127,7 @@ private class DataPluginImpl<T>(
         ignoreActive: Boolean,
     ) {
         viewModelScope.launch {
-            loadInternal(
+            loadData(
                 notifyLoading = notifyLoading,
                 ignoreActive = ignoreActive,
             )
@@ -144,7 +144,10 @@ private class DataPluginImpl<T>(
         }
     }
 
-    private suspend fun loadInternal(
+    /**
+     * 加载数据
+     */
+    private suspend fun loadData(
         notifyLoading: Boolean,
         ignoreActive: Boolean,
     ) {
@@ -169,6 +172,9 @@ private class DataPluginImpl<T>(
         }
     }
 
+    /**
+     * 处理加载结果
+     */
     private fun handleLoadResult(result: Result<T>) {
         result.onSuccess { data ->
             _state.update {
