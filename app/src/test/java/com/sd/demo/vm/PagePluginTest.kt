@@ -176,10 +176,13 @@ class PagePluginTest {
         }
     }
 
+
     @Test
     fun `test load more`() = runTest {
         testLoadMore(
             initialActive = true,
+            notifyLoadingMore = true,
+            ignoreActive = false,
         ) {
             awaitItem().let { state ->
                 assertEquals(emptyList<Int>(), state.data)
@@ -220,9 +223,38 @@ class PagePluginTest {
     }
 
     @Test
+    fun `test load more notifyLoadingMore false`() = runTest {
+        testLoadMore(
+            initialActive = true,
+            notifyLoadingMore = false,
+            ignoreActive = false
+        ) {
+            awaitItem().let { state ->
+                assertEquals(emptyList<Int>(), state.data)
+                assertEquals(0, state.page)
+                assertEquals(null, state.result)
+                assertEquals(false, state.hasMore)
+                assertEquals(false, state.isRefreshing)
+                assertEquals(false, state.isLoadingMore)
+            }
+
+            awaitItem().let { state ->
+                assertEquals(PagePluginViewModel.pageList(), state.data)
+                assertEquals(1, state.page)
+                assertEquals(true, state.result?.isSuccess)
+                assertEquals(true, state.hasMore)
+                assertEquals(false, state.isRefreshing)
+                assertEquals(false, state.isLoadingMore)
+            }
+        }
+    }
+
+    @Test
     fun `test load more inactive`() = runTest {
         testLoadMore(
             initialActive = false,
+            notifyLoadingMore = true,
+            ignoreActive = false,
         ) {
             awaitItem().let { state ->
                 assertEquals(emptyList<Int>(), state.data)
@@ -259,13 +291,18 @@ private suspend fun TestScope.testRefresh(
 @OptIn(ExperimentalCoroutinesApi::class)
 private suspend fun TestScope.testLoadMore(
     initialActive: Boolean,
+    notifyLoadingMore: Boolean,
+    ignoreActive: Boolean,
     validate: suspend TurbineTestContext<PageState<Int>>.() -> Unit,
 ) {
     val vm = PagePluginViewModel().apply { setActive(initialActive) }
     assertEquals(initialActive, vm.isVMActive)
 
     vm.plugin.state.test {
-        vm.plugin.loadMore()
+        vm.plugin.loadMore(
+            notifyLoadingMore = notifyLoadingMore,
+            ignoreActive = ignoreActive,
+        )
         advanceUntilIdle()
         validate()
     }
