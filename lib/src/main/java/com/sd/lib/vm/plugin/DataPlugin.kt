@@ -32,6 +32,10 @@ interface DataPlugin<T> : StatePlugin<DataState<T>> {
      * 更新数据
      */
     fun update(function: (T) -> T)
+
+    interface LoadScope<T> {
+        val currentState: DataState<T>
+    }
 }
 
 /**
@@ -43,8 +47,8 @@ interface DataPlugin<T> : StatePlugin<DataState<T>> {
  */
 fun <T> DataPlugin(
     initial: T,
-    canLoad: suspend () -> Boolean = { true },
-    onLoad: suspend () -> Result<T>,
+    canLoad: suspend DataPlugin.LoadScope<T>.() -> Boolean = { true },
+    onLoad: suspend DataPlugin.LoadScope<T>.() -> Result<T>,
 ): DataPlugin<T> {
     return DataPluginImpl(
         initial = initial,
@@ -103,8 +107,8 @@ inline fun <T> DataState<T>.onFailure(action: (exception: Throwable) -> Unit): D
 
 private class DataPluginImpl<T>(
     initial: T,
-    private val canLoad: suspend () -> Boolean,
-    private val onLoad: suspend () -> Result<T>,
+    private val canLoad: suspend DataPlugin.LoadScope<T>.() -> Boolean,
+    private val onLoad: suspend DataPlugin.LoadScope<T>.() -> Result<T>,
 ) : ViewModelPlugin(), DataPlugin<T> {
 
     /** 互斥修改器 */
@@ -112,6 +116,11 @@ private class DataPluginImpl<T>(
 
     private val _state = MutableStateFlow(DataState(data = initial))
     override val state: StateFlow<DataState<T>> = _state.asStateFlow()
+
+    private val _loadScopeImpl = object : DataPlugin.LoadScope<T> {
+        override val currentState: DataState<T>
+            get() = this@DataPluginImpl.state.value
+    }
 
     override fun load(
         notifyLoading: Boolean,
@@ -141,13 +150,14 @@ private class DataPluginImpl<T>(
     ) {
         if (isDestroyed) return
         if (isVMActive || ignoreActive) {
-            if (canLoad()) {
+            val canLoad = with(_loadScopeImpl) { canLoad() }
+            if (canLoad) {
                 try {
                     _mutator.mutate {
                         if (notifyLoading) {
                             _state.update { it.copy(isLoading = true) }
                         }
-                        val result = onLoad()
+                        val result = with(_loadScopeImpl) { onLoad() }
                         handleLoadResult(result)
                     }
                 } finally {
