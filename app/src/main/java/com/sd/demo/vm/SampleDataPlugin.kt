@@ -112,7 +112,7 @@ class MyDataViewModel : PluginViewModel<Unit>() {
      */
     private suspend fun loadData(): Result<UserModel> {
         val uuid = UUID.randomUUID().toString()
-        logMsg { "load start $uuid $_count" }
+        logMsg { "load start $uuid ($_count)" }
 
         try {
             // 模拟加载数据
