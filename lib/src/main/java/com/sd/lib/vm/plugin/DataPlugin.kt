@@ -85,23 +85,23 @@ val DataState<*>.isFailure: Boolean get() = result?.isFailure == true
 /**
  * 初始状态
  */
-inline fun <T> DataState<T>.onInitial(action: (data: T) -> Unit): DataState<T> {
-    if (result == null) action(data)
+inline fun <T> DataState<T>.onInitial(action: DataState<T>.() -> Unit): DataState<T> {
+    if (result == null) action()
     return this
 }
 
 /**
  * 成功状态
  */
-inline fun <T> DataState<T>.onSuccess(action: (data: T) -> Unit): DataState<T> {
-    result?.onSuccess { action(data) }
+inline fun <T> DataState<T>.onSuccess(action: DataState<T>.() -> Unit): DataState<T> {
+    result?.onSuccess { action() }
     return this
 }
 
 /**
  * 失败状态
  */
-inline fun <T> DataState<T>.onFailure(action: (exception: Throwable) -> Unit): DataState<T> {
+inline fun <T> DataState<T>.onFailure(action: DataState<T>.(exception: Throwable) -> Unit): DataState<T> {
     result?.onFailure { action(it) }
     return this
 }
