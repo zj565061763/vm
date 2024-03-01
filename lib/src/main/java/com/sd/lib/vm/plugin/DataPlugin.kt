@@ -116,7 +116,8 @@ private class DataPluginImpl<T>(
     override val state: StateFlow<DataState<T>> = _state.asStateFlow()
 
     private val _loadScopeImpl = object : DataPlugin.LoadScope<T> {
-        override val currentState: DataState<T> get() = this@DataPluginImpl.state.value
+        override val currentState: DataState<T>
+            get() = this@DataPluginImpl.state.value
     }
 
     override fun load(
