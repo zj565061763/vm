@@ -64,12 +64,49 @@ interface PagePlugin<T> : StatePlugin<PageState<T>> {
         ) : LoadResult<T>
 
         data class Failure<T>(
-            /** 总数据，null-数据不变 */
-            val data: List<T>?,
-
             /** 异常信息 */
             val exception: Throwable,
+
+            /** 总数据，null-数据不变 */
+            val data: List<T>? = null,
         ) : LoadResult<T>
+    }
+
+    companion object {
+        /**
+         * 加载成功
+         *
+         * @param data 总数据，null-数据不变
+         * @param pageSize 本页实际加载到的数据个数
+         * @param hasMore 是否还有更多数据
+         */
+        fun <T> loadSuccess(
+            data: List<T>?,
+            pageSize: Int,
+            hasMore: Boolean,
+        ): LoadResult.Success<T> {
+            return LoadResult.Success(
+                data = data,
+                pageSize = pageSize,
+                hasMore = hasMore,
+            )
+        }
+
+        /**
+         * 加载失败
+         *
+         * @param exception 异常信息
+         * @param data 总数据，null-数据不变
+         */
+        fun <T> loadFailure(
+            exception: Throwable,
+            data: List<T>? = null,
+        ): LoadResult.Failure<T> {
+            return LoadResult.Failure(
+                exception = exception,
+                data = data,
+            )
+        }
     }
 }
 

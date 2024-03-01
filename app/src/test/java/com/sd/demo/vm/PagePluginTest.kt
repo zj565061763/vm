@@ -396,7 +396,7 @@ private class PagePluginViewModel : PluginViewModel<Unit>() {
             _list.addAll(list)
         }
 
-        return PagePlugin.LoadResult.Success(
+        return PagePlugin.loadSuccess(
             data = _list.toList(),
             pageSize = list.size,
             hasMore = true,

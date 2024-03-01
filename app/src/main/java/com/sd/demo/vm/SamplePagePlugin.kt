@@ -201,22 +201,22 @@ internal class MyPageViewModel : PluginViewModel<Unit>() {
             if (randomBoolean()) {
                 _listUser.clear()
                 return if (randomBoolean()) {
-                    PagePlugin.LoadResult.Success(
+                    PagePlugin.loadSuccess(
                         data = emptyList(),
                         pageSize = 0,
                         hasMore = false,
                     )
                 } else {
-                    PagePlugin.LoadResult.Failure(
+                    PagePlugin.loadFailure(
+                        exception = Exception("Connection timeout."),
                         data = emptyList(),
-                        exception = Exception("Connection timeout.")
                     )
                 }
             }
         }
 
         if (page > 3) {
-            return PagePlugin.LoadResult.Success(
+            return PagePlugin.loadSuccess(
                 data = null,
                 pageSize = 0,
                 hasMore = false,
@@ -236,7 +236,7 @@ internal class MyPageViewModel : PluginViewModel<Unit>() {
             _listUser.addAll(list)
         }
 
-        return PagePlugin.LoadResult.Success(
+        return PagePlugin.loadSuccess(
             data = _listUser.toList(),
             pageSize = list.size,
             hasMore = true,
