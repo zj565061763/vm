@@ -32,6 +32,7 @@ import com.sd.lib.compose.swiperefresh.IndicatorMode
 import com.sd.lib.compose.swiperefresh.rememberFSwipeRefreshState
 import com.sd.lib.vm.PluginViewModel
 import com.sd.lib.vm.plugin.PagePlugin
+import com.sd.lib.vm.plugin.PageState
 import kotlinx.coroutines.delay
 import java.util.UUID
 
@@ -75,14 +76,11 @@ private fun Content(
                 ItemView(user = user)
             }
 
-            if (userPage.data.isNotEmpty()) {
-                item(contentType = "footer") {
-                    FooterView(
-                        modifier = Modifier.fillMaxWidth(),
-                        isLoadingMore = userPage.isLoadingMore,
-                        hasMore = userPage.hasMore,
-                    )
-                }
+            item(contentType = "footer") {
+                FooterView(
+                    modifier = Modifier.fillMaxWidth(),
+                    pageState = userPage,
+                )
             }
         }
     }
@@ -114,11 +112,12 @@ private fun ItemView(
 @Composable
 private fun FooterView(
     modifier: Modifier = Modifier,
-    /** 是否正在加载更多 */
-    isLoadingMore: Boolean,
-    /** 是否还有更多数据 */
-    hasMore: Boolean,
+    pageState: PageState<*>,
 ) {
+    if (pageState.data.isEmpty()) return
+    val hasMore = pageState.hasMore ?: return
+    val isLoadingMore = pageState.isLoadingMore
+
     Box(
         modifier = modifier
             .fillMaxWidth()

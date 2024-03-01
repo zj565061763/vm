@@ -59,7 +59,7 @@ interface PagePlugin<T> : StatePlugin<PageState<T>> {
         val pageSize: Int,
 
         /** 是否还有更多数据 */
-        val hasMore: Boolean = false,
+        val hasMore: Boolean,
     )
 }
 
@@ -104,7 +104,7 @@ data class PageState<T>(
     val result: Result<Unit>? = null,
 
     /** 是否还有更多数据 */
-    val hasMore: Boolean = false,
+    val hasMore: Boolean? = null,
 
     /** 当前页码是否是刷新页码，null-未知，true-刷新页码，false-更多页码 */
     val isRefreshPage: Boolean? = null,
