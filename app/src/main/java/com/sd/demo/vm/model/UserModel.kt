@@ -1,5 +1,5 @@
 package com.sd.demo.vm.model
 
-class UserModel(
+data class UserModel(
     val name: String,
 )
