@@ -97,8 +97,8 @@ data class PageState<T>(
     /** 所有页的数据 */
     val data: List<T>,
 
-    /** 当前页码 */
-    val page: Int = 0,
+    /** 当前页码，默认值为[PagePlugin.refreshPage]-1 */
+    val page: Int,
 
     /** 当前页码的数据结果 */
     val result: Result<Unit>? = null,
@@ -168,7 +168,13 @@ private class PagePluginImpl<T>(
         loadData(page)
     }
 
-    private val _state = MutableStateFlow(PageState(data = initial))
+    private val _state = MutableStateFlow(
+        PageState(
+            data = initial,
+            page = refreshPage - 1
+        )
+    )
+
     override val state: StateFlow<PageState<T>> = _state.asStateFlow()
 
     private val _loadScopeImpl = object : PagePlugin.LoadScope<T> {
