@@ -22,10 +22,12 @@ interface PagePlugin<T> : StatePlugin<PageState<T>> {
      *
      * @param notifyRefreshing 是否通知[PageState.isRefreshing]
      * @param ignoreActive 是否忽略激活状态[FViewModel.isVMActive]
+     * @param canLoad 是否可以加载数据
      */
     fun refresh(
         notifyRefreshing: Boolean = true,
         ignoreActive: Boolean = false,
+        canLoad: (suspend LoadScope<T>.(page: Int) -> Boolean)? = null,
     )
 
     /**
@@ -33,10 +35,12 @@ interface PagePlugin<T> : StatePlugin<PageState<T>> {
      *
      * @param notifyLoadingMore 是否通知[PageState.isLoadingMore]
      * @param ignoreActive 是否忽略激活状态[FViewModel.isVMActive]
+     * @param canLoad 是否可以加载数据
      */
     fun loadMore(
         notifyLoadingMore: Boolean = true,
         ignoreActive: Boolean = false,
+        canLoad: (suspend LoadScope<T>.(page: Int) -> Boolean)? = null,
     )
 
     interface LoadScope<T> {
@@ -63,14 +67,23 @@ interface PagePlugin<T> : StatePlugin<PageState<T>> {
  * [PagePlugin]
  *
  * @param refreshPage 刷新数据的页码，例如数据源规定页码从1开始，那么此参数就为1
+ * @param canLoad 是否可以加载数据
  * @param onLoad 数据加载回调
  */
 fun <T> PagePlugin(
     refreshPage: Int = 1,
+    canLoad: suspend PagePlugin.LoadScope<T>.(page: Int) -> Boolean = { page ->
+        if (page == this.refreshPage) {
+            true
+        } else {
+            !this.currentState.isRefreshing && !this.currentState.isLoadingMore
+        }
+    },
     onLoad: suspend PagePlugin.LoadScope<T>.(page: Int) -> Result<PagePlugin.Data<T>>,
 ): PagePlugin<T> {
     return PagePluginImpl(
         refreshPage = refreshPage,
+        canLoad = canLoad,
         onLoad = onLoad,
     )
 }
@@ -101,6 +114,7 @@ data class PageState<T>(
 
 private class PagePluginImpl<T>(
     override val refreshPage: Int,
+    private val canLoad: suspend PagePlugin.LoadScope<T>.(page: Int) -> Boolean,
     private val onLoad: suspend PagePlugin.LoadScope<T>.(page: Int) -> Result<PagePlugin.Data<T>>,
 ) : ViewModelPlugin(), PagePlugin<T> {
 
@@ -125,27 +139,46 @@ private class PagePluginImpl<T>(
     override fun refresh(
         notifyRefreshing: Boolean,
         ignoreActive: Boolean,
+        canLoad: (suspend PagePlugin.LoadScope<T>.(page: Int) -> Boolean)?,
     ) {
         _refreshPlugin.load(
             notifyLoading = notifyRefreshing,
             ignoreActive = ignoreActive,
+            canLoad = {
+                canLoadData(
+                    page = refreshPage,
+                    canLoad = canLoad,
+                )
+            },
         )
     }
 
     override fun loadMore(
         notifyLoadingMore: Boolean,
         ignoreActive: Boolean,
+        canLoad: (suspend PagePlugin.LoadScope<T>.(page: Int) -> Boolean)?,
     ) {
-        with(state.value) {
-            if (isRefreshing || isLoadingMore) {
-                return
-            }
-        }
-
         _loadMorePlugin.load(
             notifyLoading = notifyLoadingMore,
             ignoreActive = ignoreActive,
+            canLoad = {
+                canLoadData(
+                    page = state.value.page + 1,
+                    canLoad = canLoad,
+                )
+            },
         )
+    }
+
+    /**
+     * 是否可以加载数据
+     */
+    private suspend fun canLoadData(
+        page: Int,
+        canLoad: (suspend PagePlugin.LoadScope<T>.(page: Int) -> Boolean)?,
+    ): Boolean {
+        val canLoadBlock = canLoad ?: this@PagePluginImpl.canLoad
+        return with(_loadScopeImpl) { canLoadBlock(page) }
     }
 
     /**
