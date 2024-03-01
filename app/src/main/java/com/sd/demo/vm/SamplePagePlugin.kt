@@ -33,6 +33,8 @@ import com.sd.lib.compose.swiperefresh.rememberFSwipeRefreshState
 import com.sd.lib.vm.PluginViewModel
 import com.sd.lib.vm.plugin.PagePlugin
 import com.sd.lib.vm.plugin.PageState
+import com.sd.lib.vm.plugin.onViewFailureEmpty
+import com.sd.lib.vm.plugin.onViewSuccessEmpty
 import kotlinx.coroutines.delay
 import java.util.UUID
 
@@ -83,6 +85,14 @@ private fun Content(
                 )
             }
         }
+
+        userPage.onViewSuccessEmpty {
+            EmptyView()
+        }
+
+        userPage.onViewFailureEmpty {
+            ErrorView(text = it.toString())
+        }
     }
 }
 
@@ -103,6 +113,31 @@ private fun ItemView(
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onPrimary,
         )
+    }
+}
+
+@Composable
+private fun EmptyView(
+    modifier: Modifier = Modifier,
+) {
+    Box(
+        modifier = modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(text = "Empty View")
+    }
+}
+
+@Composable
+private fun ErrorView(
+    modifier: Modifier = Modifier,
+    text: String,
+) {
+    Box(
+        modifier = modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(text = "Error View $text")
     }
 }
 
@@ -156,17 +191,35 @@ internal class MyPageViewModel : PluginViewModel<Unit>() {
     /**
      * 加载用户分页数据
      */
-    private suspend fun loadUsers(page: Int): Result<PagePlugin.Data<UserModel>> {
+    private suspend fun loadUsers(page: Int): PagePlugin.LoadResult<UserModel> {
         // 模拟加载数据
         delay(1_000)
 
+        val isRefresh = page == userPage.refreshPage
+
+        if (isRefresh) {
+            if (randomBoolean()) {
+                _listUser.clear()
+                return if (randomBoolean()) {
+                    PagePlugin.LoadResult.Success(
+                        data = emptyList(),
+                        pageSize = 0,
+                        hasMore = false,
+                    )
+                } else {
+                    PagePlugin.LoadResult.Failure(
+                        data = emptyList(),
+                        exception = Exception("Connection timeout.")
+                    )
+                }
+            }
+        }
+
         if (page > 3) {
-            return Result.success(
-                PagePlugin.Data(
-                    data = _listUser.toList(),
-                    pageSize = 0,
-                    hasMore = false,
-                )
+            return PagePlugin.LoadResult.Success(
+                data = null,
+                pageSize = 0,
+                hasMore = false,
             )
         }
 
@@ -174,7 +227,7 @@ internal class MyPageViewModel : PluginViewModel<Unit>() {
             UserModel(name = UUID.randomUUID().toString())
         }
 
-        if (page == userPage.refreshPage) {
+        if (isRefresh) {
             // 刷新
             _listUser.clear()
             _listUser.addAll(list)
@@ -183,17 +236,16 @@ internal class MyPageViewModel : PluginViewModel<Unit>() {
             _listUser.addAll(list)
         }
 
-        // 构建分页插件的数据对象
-        val data = PagePlugin.Data(
+        return PagePlugin.LoadResult.Success(
             data = _listUser.toList(),
             pageSize = list.size,
             hasMore = true,
         )
-
-        return Result.success(data)
     }
 
     init {
         userPage.refresh()
     }
 }
+
+private fun randomBoolean(): Boolean = listOf(true, false).random()

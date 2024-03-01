@@ -51,16 +51,26 @@ interface PagePlugin<T> : StatePlugin<PageState<T>> {
         val refreshPage: Int
     }
 
-    data class Data<T>(
-        /** 所有页的数据 */
-        val data: List<T>,
+    sealed interface LoadResult<T> {
+        data class Success<T>(
+            /** 总数据，null-数据不变 */
+            val data: List<T>?,
 
-        /** 本页实际加载到的数据个数 */
-        val pageSize: Int,
+            /** 本页实际加载到的数据个数 */
+            val pageSize: Int,
 
-        /** 是否还有更多数据 */
-        val hasMore: Boolean,
-    )
+            /** 是否还有更多数据 */
+            val hasMore: Boolean,
+        ) : LoadResult<T>
+
+        data class Failure<T>(
+            /** 总数据，null-数据不变 */
+            val data: List<T>?,
+
+            /** 异常信息 */
+            val exception: Throwable,
+        ) : LoadResult<T>
+    }
 }
 
 /**
@@ -81,7 +91,7 @@ fun <T> PagePlugin(
             !currentState.isLoadingMore
         }
     },
-    onLoad: suspend PagePlugin.LoadScope<T>.(page: Int) -> Result<PagePlugin.Data<T>>,
+    onLoad: suspend PagePlugin.LoadScope<T>.(page: Int) -> PagePlugin.LoadResult<T>,
 ): PagePlugin<T> {
     return PagePluginImpl(
         initial = initial,
@@ -94,7 +104,7 @@ fun <T> PagePlugin(
 //---------- state ----------
 
 data class PageState<T>(
-    /** 所有页的数据 */
+    /** 总数据 */
     val data: List<T>,
 
     /** 当前页码，默认值为[PagePlugin.refreshPage]-1 */
@@ -149,13 +159,33 @@ inline fun <T> PageState<T>.onFailure(action: PageState<T>.(exception: Throwable
     return this
 }
 
+/**
+ * 加载成功，并且总数据为空
+ */
+inline fun <T> PageState<T>.onViewSuccessEmpty(action: PageState<T>.() -> Unit): PageState<T> {
+    onSuccess {
+        if (data.isEmpty()) action()
+    }
+    return this
+}
+
+/**
+ * 加载失败，并且总数据为空
+ */
+inline fun <T> PageState<T>.onViewFailureEmpty(action: PageState<T>.(exception: Throwable) -> Unit): PageState<T> {
+    onFailure {
+        if (data.isEmpty()) action(it)
+    }
+    return this
+}
+
 //---------- impl ----------
 
 private class PagePluginImpl<T>(
     initial: List<T>,
     override val refreshPage: Int,
     private val canLoad: suspend PagePlugin.LoadScope<T>.(page: Int) -> Boolean,
-    private val onLoad: suspend PagePlugin.LoadScope<T>.(page: Int) -> Result<PagePlugin.Data<T>>,
+    private val onLoad: suspend PagePlugin.LoadScope<T>.(page: Int) -> PagePlugin.LoadResult<T>,
 ) : ViewModelPlugin(), PagePlugin<T> {
 
     private val _refreshPlugin = DataPlugin(Unit) {
@@ -237,37 +267,41 @@ private class PagePluginImpl<T>(
      */
     private suspend fun loadData(page: Int): Result<Unit> {
         val result = with(_loadScopeImpl) { onLoad(page) }
-        handleLoadResult(result, page)
-        return result.map { }
+        return handleLoadResult(result, page)
     }
 
     /**
      * 处理加载结果
      */
-    private fun handleLoadResult(result: Result<PagePlugin.Data<T>>, page: Int) {
-        result.onSuccess { data ->
-            val newPage = if (page == refreshPage) {
-                // refresh
-                refreshPage
-            } else {
-                // loadMore
-                if (data.pageSize > 0) page else page - 1
+    private fun handleLoadResult(result: PagePlugin.LoadResult<T>, page: Int): Result<Unit> {
+        return when (result) {
+            is PagePlugin.LoadResult.Success<T> -> Result.success(Unit).also { success ->
+                val newPage = if (page == refreshPage) {
+                    // refresh
+                    refreshPage
+                } else {
+                    // loadMore
+                    if (result.pageSize > 0) page else page - 1
+                }
+
+                _state.update {
+                    it.copy(
+                        data = result.data ?: it.data,
+                        page = newPage,
+                        result = success,
+                        hasMore = result.hasMore,
+                        isRefreshPage = newPage == refreshPage,
+                    )
+                }
             }
 
-            _state.update {
-                it.copy(
-                    data = data.data,
-                    page = newPage,
-                    result = Result.success(Unit),
-                    hasMore = data.hasMore,
-                    isRefreshPage = newPage == refreshPage,
-                )
-            }
-        }
-
-        result.onFailure { throwable ->
-            _state.update {
-                it.copy(result = Result.failure(throwable))
+            is PagePlugin.LoadResult.Failure<T> -> Result.failure<Unit>(result.exception).also { failure ->
+                _state.update {
+                    it.copy(
+                        data = result.data ?: it.data,
+                        result = failure,
+                    )
+                }
             }
         }
     }

@@ -385,7 +385,7 @@ private class PagePluginViewModel : PluginViewModel<Unit>() {
 
     override suspend fun handleIntent(intent: Unit) {}
 
-    private suspend fun loadData(page: Int): Result<PagePlugin.Data<Int>> {
+    private suspend fun loadData(page: Int): PagePlugin.LoadResult<Int> {
         delay(1000)
 
         val list = pageList()
@@ -396,12 +396,10 @@ private class PagePluginViewModel : PluginViewModel<Unit>() {
             _list.addAll(list)
         }
 
-        return Result.success(
-            PagePlugin.Data(
-                data = _list.toList(),
-                pageSize = list.size,
-                hasMore = true,
-            )
+        return PagePlugin.LoadResult.Success(
+            data = _list.toList(),
+            pageSize = list.size,
+            hasMore = true,
         )
     }
 
