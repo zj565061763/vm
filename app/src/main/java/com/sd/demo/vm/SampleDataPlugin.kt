@@ -26,6 +26,7 @@ import com.sd.demo.vm.model.UserModel
 import com.sd.lib.vm.PluginViewModel
 import com.sd.lib.vm.plugin.DataPlugin
 import com.sd.lib.vm.plugin.onFailure
+import com.sd.lib.vm.plugin.onInitial
 import com.sd.lib.vm.plugin.onSuccess
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
@@ -78,14 +79,14 @@ private fun Content(
             }
         }
 
-        state.onSuccess {
-            Text(text = it.name)
-        }
+        Text(text = state.data.name)
 
+        state.onInitial {
+            Text(text = "Initial")
+        }
         state.onSuccess {
             Text(text = "Success")
         }
-
         state.onFailure {
             Text(
                 text = "Failure:$it",

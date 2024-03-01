@@ -63,15 +63,34 @@ data class DataState<T>(
     val isLoading: Boolean = false,
 )
 
+/** 是否初始状态 */
 val DataState<*>.isInitial: Boolean get() = result == null
+
+/** 是否成功状态 */
 val DataState<*>.isSuccess: Boolean get() = result?.isSuccess == true
+
+/** 是否失败状态 */
 val DataState<*>.isFailure: Boolean get() = result?.isFailure == true
 
+/**
+ * 初始状态
+ */
+inline fun <T> DataState<T>.onInitial(action: (data: T) -> Unit): DataState<T> {
+    if (result == null) action(data)
+    return this
+}
+
+/**
+ * 成功状态
+ */
 inline fun <T> DataState<T>.onSuccess(action: (data: T) -> Unit): DataState<T> {
     result?.onSuccess { action(data) }
     return this
 }
 
+/**
+ * 失败状态
+ */
 inline fun <T> DataState<T>.onFailure(action: (exception: Throwable) -> Unit): DataState<T> {
     result?.onFailure { action(it) }
     return this
