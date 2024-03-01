@@ -20,12 +20,12 @@ interface PagePlugin<T> : StatePlugin<PageState<T>> {
     /**
      * 刷新数据
      *
-     * @param notifyRefreshing 是否通知[PageState.isRefreshing]
+     * @param notifyLoading 是否通知[PageState.isRefreshing]
      * @param ignoreActive 是否忽略激活状态[FViewModel.isVMActive]
      * @param canLoad 是否可以加载数据
      */
     fun refresh(
-        notifyRefreshing: Boolean = true,
+        notifyLoading: Boolean = true,
         ignoreActive: Boolean = false,
         canLoad: (suspend LoadScope<T>.(page: Int) -> Boolean)? = null,
     )
@@ -33,12 +33,12 @@ interface PagePlugin<T> : StatePlugin<PageState<T>> {
     /**
      * 加载更多数据
      *
-     * @param notifyLoadingMore 是否通知[PageState.isLoadingMore]
+     * @param notifyLoading 是否通知[PageState.isLoadingMore]
      * @param ignoreActive 是否忽略激活状态[FViewModel.isVMActive]
      * @param canLoad 是否可以加载数据
      */
     fun loadMore(
-        notifyLoadingMore: Boolean = true,
+        notifyLoading: Boolean = true,
         ignoreActive: Boolean = false,
         canLoad: (suspend LoadScope<T>.(page: Int) -> Boolean)? = null,
     )
@@ -137,12 +137,12 @@ private class PagePluginImpl<T>(
     }
 
     override fun refresh(
-        notifyRefreshing: Boolean,
+        notifyLoading: Boolean,
         ignoreActive: Boolean,
         canLoad: (suspend PagePlugin.LoadScope<T>.(page: Int) -> Boolean)?,
     ) {
         _refreshPlugin.load(
-            notifyLoading = notifyRefreshing,
+            notifyLoading = notifyLoading,
             ignoreActive = ignoreActive,
             canLoad = {
                 canLoadData(
@@ -159,12 +159,12 @@ private class PagePluginImpl<T>(
     }
 
     override fun loadMore(
-        notifyLoadingMore: Boolean,
+        notifyLoading: Boolean,
         ignoreActive: Boolean,
         canLoad: (suspend PagePlugin.LoadScope<T>.(page: Int) -> Boolean)?,
     ) {
         _loadMorePlugin.load(
-            notifyLoading = notifyLoadingMore,
+            notifyLoading = notifyLoading,
             ignoreActive = ignoreActive,
             canLoad = {
                 canLoadData(

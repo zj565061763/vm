@@ -325,7 +325,7 @@ private suspend fun TestScope.testRefresh(
 
     vm.plugin.state.test {
         vm.plugin.refresh(
-            notifyRefreshing = notifyRefreshing,
+            notifyLoading = notifyRefreshing,
             ignoreActive = ignoreActive,
         )
         advanceUntilIdle()
@@ -345,7 +345,7 @@ private suspend fun TestScope.testLoadMore(
 
     vm.plugin.state.test {
         vm.plugin.loadMore(
-            notifyLoadingMore = notifyLoadingMore,
+            notifyLoading = notifyLoadingMore,
             ignoreActive = ignoreActive,
         )
         advanceUntilIdle()
