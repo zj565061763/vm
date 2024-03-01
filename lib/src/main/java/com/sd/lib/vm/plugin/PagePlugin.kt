@@ -13,10 +13,6 @@ import kotlinx.coroutines.launch
  * 分页管理
  */
 interface PagePlugin<T> : StatePlugin<PageState<T>> {
-
-    /** 刷新数据的页码，例如数据源规定页码从1开始，那么此参数就为1 */
-    val refreshPage: Int
-
     /**
      * 刷新数据
      *
@@ -46,9 +42,6 @@ interface PagePlugin<T> : StatePlugin<PageState<T>> {
     interface LoadScope<T> {
         /** 当前数据状态 */
         val currentState: PageState<T>
-
-        /** 刷新数据的页码，例如数据源规定页码从1开始，那么此参数就为1 */
-        val refreshPage: Int
     }
 
     sealed interface LoadResult<T> {
@@ -122,7 +115,7 @@ fun <T> PagePlugin(
     initial: List<T> = emptyList(),
     refreshPage: Int = 1,
     canLoad: suspend PagePlugin.LoadScope<T>.(page: Int) -> Boolean = { page ->
-        if (page == this.refreshPage) {
+        if (page == currentState.refreshPage) {
             true
         } else {
             !currentState.isLoadingMore
@@ -153,8 +146,8 @@ data class PageState<T>(
     /** 是否还有更多数据 */
     val hasMore: Boolean? = null,
 
-    /** 当前页码是否是刷新页码，null-未知，true-刷新页码，false-更多页码 */
-    val isRefreshPage: Boolean? = null,
+    /** 刷新数据的页码，例如数据源规定页码从1开始，那么此参数就为1 */
+    val refreshPage: Int,
 
     /** 是否正在刷新 */
     val isRefreshing: Boolean = false,
@@ -220,7 +213,7 @@ inline fun <T> PageState<T>.onViewFailureEmpty(action: PageState<T>.(exception: 
 
 private class PagePluginImpl<T>(
     initial: List<T>,
-    override val refreshPage: Int,
+    private val refreshPage: Int,
     private val canLoad: suspend PagePlugin.LoadScope<T>.(page: Int) -> Boolean,
     private val onLoad: suspend PagePlugin.LoadScope<T>.(page: Int) -> PagePlugin.LoadResult<T>,
 ) : ViewModelPlugin(), PagePlugin<T> {
@@ -241,15 +234,16 @@ private class PagePluginImpl<T>(
     private val _state = MutableStateFlow(
         PageState(
             data = initial,
-            page = refreshPage - 1
+            page = refreshPage - 1,
+            refreshPage = refreshPage,
         )
     )
 
     override val state: StateFlow<PageState<T>> = _state.asStateFlow()
 
     private val _loadScopeImpl = object : PagePlugin.LoadScope<T> {
-        override val currentState: PageState<T> get() = this@PagePluginImpl.state.value
-        override val refreshPage: Int get() = this@PagePluginImpl.refreshPage
+        override val currentState: PageState<T>
+            get() = this@PagePluginImpl.state.value
     }
 
     override fun refresh(
@@ -325,7 +319,6 @@ private class PagePluginImpl<T>(
                         page = newPage,
                         result = success,
                         hasMore = result.hasMore,
-                        isRefreshPage = newPage == refreshPage,
                     )
                 }
             }

@@ -184,18 +184,21 @@ internal class MyPageViewModel : PluginViewModel<Unit>() {
     private val _listUser = mutableListOf<UserModel>()
 
     /** 用户分页数据 */
-    val userPage = PagePlugin { loadUsers(it) }.register()
+    val userPage = PagePlugin { page ->
+        loadUsers(page, page == currentState.refreshPage)
+    }.register()
 
     override suspend fun handleIntent(intent: Unit) {}
 
     /**
      * 加载用户分页数据
      */
-    private suspend fun loadUsers(page: Int): PagePlugin.LoadResult<UserModel> {
+    private suspend fun loadUsers(
+        page: Int,
+        isRefresh: Boolean,
+    ): PagePlugin.LoadResult<UserModel> {
         // 模拟加载数据
         delay(1_000)
-
-        val isRefresh = page == userPage.refreshPage
 
         if (isRefresh) {
             if (randomBoolean()) {
