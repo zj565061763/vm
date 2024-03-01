@@ -113,6 +113,15 @@ data class PageState<T>(
     val isLoadingMore: Boolean = false,
 )
 
+/** 是否初始状态 */
+val PageState<*>.isInitial: Boolean get() = result == null
+
+/** 是否成功状态 */
+val PageState<*>.isSuccess: Boolean get() = result?.isSuccess == true
+
+/** 是否失败状态 */
+val PageState<*>.isFailure: Boolean get() = result?.isFailure == true
+
 //---------- impl ----------
 
 private class PagePluginImpl<T>(
