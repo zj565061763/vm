@@ -106,6 +106,9 @@ data class PageState<T>(
     /** 是否还有更多数据 */
     val hasMore: Boolean = false,
 
+    /** 当前页码是否是刷新页码 */
+    val isRefreshPage: Boolean? = null,
+
     /** 是否正在刷新 */
     val isRefreshing: Boolean = false,
 
@@ -251,6 +254,7 @@ private class PagePluginImpl<T>(
                     page = newPage,
                     result = Result.success(Unit),
                     hasMore = data.hasMore,
+                    isRefreshPage = newPage == refreshPage,
                 )
             }
         }
