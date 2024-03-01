@@ -3,7 +3,6 @@ package com.sd.demo.vm
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -57,41 +56,45 @@ private fun Content(
     ) {
         Button(
             modifier = Modifier.widthIn(100.dp),
-            onClick = { vm.data.load() },
+            onClick = {
+                if (state.isLoading) {
+                    // 取消加载
+                    vm.data.cancelLoad()
+                } else {
+                    // 加载
+                    vm.data.load()
+                }
+            },
         ) {
             if (state.isLoading) {
-                CircularProgressIndicator(
-                    modifier = Modifier.size(10.dp),
-                    color = LocalContentColor.current,
-                    strokeWidth = 1.dp,
-                )
+                Text(text = "cancel")
             } else {
                 Text(text = "load")
             }
         }
 
-        AnimatedVisibility(visible = state.isLoading) {
-            Button(
-                modifier = Modifier.widthIn(100.dp),
-                onClick = { vm.data.cancelLoad() },
-            ) {
-                Text(text = "cancel")
-            }
-        }
-
+        // 显示加载数据
         Text(text = state.data.name)
 
-        state.onInitial {
-            Text(text = "Initial")
-        }
-        state.onSuccess {
-            Text(text = "Success")
-        }
-        state.onFailure {
-            Text(
-                text = "Failure:$it",
-                color = MaterialTheme.colorScheme.error,
+        if (state.isLoading) {
+            CircularProgressIndicator(
+                modifier = Modifier.size(10.dp),
+                color = LocalContentColor.current,
+                strokeWidth = 1.dp,
             )
+        } else {
+            state.onInitial {
+                Text(text = "Initial")
+            }
+            state.onSuccess {
+                Text(text = "Success")
+            }
+            state.onFailure {
+                Text(
+                    text = "Failure:$it",
+                    color = MaterialTheme.colorScheme.error,
+                )
+            }
         }
     }
 }
