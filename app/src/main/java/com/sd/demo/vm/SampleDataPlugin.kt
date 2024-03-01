@@ -78,7 +78,9 @@ private fun Content(
             }
         }
 
-        Text(text = state.data.name)
+        state.onSuccess {
+            Text(text = it.name)
+        }
 
         state.onSuccess {
             Text(text = "Success")

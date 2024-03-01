@@ -7,6 +7,8 @@ import app.cash.turbine.test
 import com.sd.lib.vm.PluginViewModel
 import com.sd.lib.vm.plugin.DataPlugin
 import com.sd.lib.vm.plugin.DataState
+import com.sd.lib.vm.plugin.isInitial
+import com.sd.lib.vm.plugin.isSuccess
 import io.mockk.every
 import io.mockk.mockkClass
 import io.mockk.mockkStatic
@@ -50,27 +52,27 @@ class DataPluginTest {
             ignoreActive = false
         ) {
             awaitItem().let { state ->
-                assertEquals(false, state.isLoading)
                 assertEquals(0, state.data)
-                assertEquals(null, state.result)
-            }
-
-            awaitItem().let { state ->
-                assertEquals(true, state.isLoading)
-                assertEquals(0, state.data)
-                assertEquals(null, state.result)
-            }
-
-            awaitItem().let { state ->
-                assertEquals(true, state.isLoading)
-                assertEquals(1, state.data)
-                assertEquals(true, state.result?.isSuccess)
-            }
-
-            awaitItem().let { state ->
+                assertEquals(true, state.isInitial)
                 assertEquals(false, state.isLoading)
+            }
+
+            awaitItem().let { state ->
+                assertEquals(0, state.data)
+                assertEquals(true, state.isInitial)
+                assertEquals(true, state.isLoading)
+            }
+
+            awaitItem().let { state ->
                 assertEquals(1, state.data)
-                assertEquals(true, state.result?.isSuccess)
+                assertEquals(true, state.isSuccess)
+                assertEquals(true, state.isLoading)
+            }
+
+            awaitItem().let { state ->
+                assertEquals(1, state.data)
+                assertEquals(true, state.isSuccess)
+                assertEquals(false, state.isLoading)
             }
         }
     }
@@ -83,15 +85,15 @@ class DataPluginTest {
             ignoreActive = false
         ) {
             awaitItem().let { state ->
-                assertEquals(false, state.isLoading)
                 assertEquals(0, state.data)
-                assertEquals(null, state.result)
+                assertEquals(true, state.isInitial)
+                assertEquals(false, state.isLoading)
             }
 
             awaitItem().let { state ->
-                assertEquals(false, state.isLoading)
                 assertEquals(1, state.data)
-                assertEquals(true, state.result?.isSuccess)
+                assertEquals(true, state.isSuccess)
+                assertEquals(false, state.isLoading)
             }
         }
     }
@@ -104,9 +106,9 @@ class DataPluginTest {
             ignoreActive = false
         ) {
             awaitItem().let { state ->
-                assertEquals(false, state.isLoading)
                 assertEquals(0, state.data)
-                assertEquals(null, state.result)
+                assertEquals(true, state.isInitial)
+                assertEquals(false, state.isLoading)
             }
         }
     }
@@ -119,27 +121,27 @@ class DataPluginTest {
             ignoreActive = true
         ) {
             awaitItem().let { state ->
-                assertEquals(false, state.isLoading)
                 assertEquals(0, state.data)
-                assertEquals(null, state.result)
-            }
-
-            awaitItem().let { state ->
-                assertEquals(true, state.isLoading)
-                assertEquals(0, state.data)
-                assertEquals(null, state.result)
-            }
-
-            awaitItem().let { state ->
-                assertEquals(true, state.isLoading)
-                assertEquals(1, state.data)
-                assertEquals(true, state.result?.isSuccess)
-            }
-
-            awaitItem().let { state ->
+                assertEquals(true, state.isInitial)
                 assertEquals(false, state.isLoading)
+            }
+
+            awaitItem().let { state ->
+                assertEquals(0, state.data)
+                assertEquals(true, state.isInitial)
+                assertEquals(true, state.isLoading)
+            }
+
+            awaitItem().let { state ->
                 assertEquals(1, state.data)
-                assertEquals(true, state.result?.isSuccess)
+                assertEquals(true, state.isSuccess)
+                assertEquals(true, state.isLoading)
+            }
+
+            awaitItem().let { state ->
+                assertEquals(1, state.data)
+                assertEquals(true, state.isSuccess)
+                assertEquals(false, state.isLoading)
             }
         }
     }

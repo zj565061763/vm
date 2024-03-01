@@ -63,6 +63,10 @@ data class DataState<T>(
     val isLoading: Boolean = false,
 )
 
+val DataState<*>.isInitial: Boolean get() = result == null
+val DataState<*>.isSuccess: Boolean get() = result?.isSuccess == true
+val DataState<*>.isFailure: Boolean get() = result?.isFailure == true
+
 inline fun <T> DataState<T>.onSuccess(action: (data: T) -> Unit): DataState<T> {
     result?.onSuccess { action(data) }
     return this
