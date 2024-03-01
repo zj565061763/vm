@@ -137,7 +137,7 @@ data class PageState<T>(
     /** 总数据 */
     val data: List<T>,
 
-    /** 当前页码，默认值为[PagePlugin.refreshPage]-1 */
+    /** 当前页码，默认值为[refreshPage]-1 */
     val page: Int,
 
     /** 当前页码的数据结果 */
