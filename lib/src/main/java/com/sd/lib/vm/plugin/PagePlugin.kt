@@ -67,6 +67,8 @@ fun <T> PagePlugin(
     )
 }
 
+//---------- state ----------
+
 data class PageState<T>(
     /** 所有页的数据 */
     val data: List<T> = emptyList(),
