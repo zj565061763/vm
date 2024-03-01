@@ -126,14 +126,16 @@ private fun FooterView(
             .padding(5.dp)
     ) {
         if (isLoadingMore) {
-            // 加载中，不显示
+            // 加载中
             Text(
                 text = "加载中...",
                 fontSize = 12.sp,
                 modifier = Modifier.align(Alignment.TopCenter),
             )
         } else {
-            if (!hasMore) {
+            if (hasMore) {
+                // 还有数据
+            } else {
                 Text(
                     text = "没有更多数据了~",
                     fontSize = 12.sp,
