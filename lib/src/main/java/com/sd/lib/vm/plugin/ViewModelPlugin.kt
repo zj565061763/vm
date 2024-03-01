@@ -40,6 +40,7 @@ abstract class ViewModelPlugin : LifecyclePlugin {
      */
     @MainThread
     protected fun <T : PluginViewModel.Plugin> T.register() {
+        if (this === this@ViewModelPlugin) error("Can not register self.")
         vm.registerPlugin(this)
     }
 
