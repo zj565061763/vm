@@ -122,6 +122,30 @@ val PageState<*>.isSuccess: Boolean get() = result?.isSuccess == true
 /** 是否失败状态 */
 val PageState<*>.isFailure: Boolean get() = result?.isFailure == true
 
+/**
+ * 初始状态
+ */
+inline fun <T> PageState<T>.onInitial(action: PageState<T>.() -> Unit): PageState<T> {
+    if (result == null) action()
+    return this
+}
+
+/**
+ * 成功状态
+ */
+inline fun <T> PageState<T>.onSuccess(action: PageState<T>.() -> Unit): PageState<T> {
+    result?.onSuccess { action() }
+    return this
+}
+
+/**
+ * 失败状态
+ */
+inline fun <T> PageState<T>.onFailure(action: PageState<T>.(exception: Throwable) -> Unit): PageState<T> {
+    result?.onFailure { action(it) }
+    return this
+}
+
 //---------- impl ----------
 
 private class PagePluginImpl<T>(
