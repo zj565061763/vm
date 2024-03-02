@@ -67,6 +67,8 @@ interface PagePlugin<T> : StatePlugin<StateFlow<PageState<T>>> {
             /** 总数据，null-数据不变 */
             val data: List<T>? = null,
         ) : LoadResult<T>
+
+        data object None : LoadResult<Nothing>
     }
 
     companion object {
@@ -104,6 +106,11 @@ interface PagePlugin<T> : StatePlugin<StateFlow<PageState<T>>> {
                 data = data,
             )
         }
+
+        /**
+         * 无结果
+         */
+        fun loadNone(): LoadResult.None = LoadResult.None
     }
 }
 
@@ -343,6 +350,8 @@ private class PagePluginImpl<T>(
                     )
                 }
             }
+
+            is PagePlugin.LoadResult.None -> Result.success(Unit)
         }
     }
 
