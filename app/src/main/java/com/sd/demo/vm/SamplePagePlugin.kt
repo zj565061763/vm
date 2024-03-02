@@ -35,6 +35,7 @@ import com.sd.lib.vm.plugin.PagePlugin
 import com.sd.lib.vm.plugin.PageState
 import com.sd.lib.vm.plugin.onViewFailureEmpty
 import com.sd.lib.vm.plugin.onViewSuccessEmpty
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import java.util.UUID
 
@@ -200,7 +201,12 @@ internal class MyPageViewModel : PluginViewModel<Unit>() {
         logMsg { "load page:$page $uuid" }
 
         // 模拟加载数据
-        delay(1_000)
+        try {
+            delay(1_000)
+        } catch (e: CancellationException) {
+            logMsg { "load cancel $uuid" }
+            throw e
+        }
 
         if (isRefresh) {
             if (randomBoolean()) {
