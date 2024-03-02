@@ -122,7 +122,7 @@ fun <T> PagePlugin(
         if (isRefresh) {
             true
         } else {
-            !currentState.isLoadingMore
+            currentState.run { !isRefreshing && !isLoadingMore }
         }
     },
     onLoad: suspend PagePlugin.LoadScope<T>.(page: Int) -> PagePlugin.LoadResult<T>,
