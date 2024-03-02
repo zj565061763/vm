@@ -141,17 +141,14 @@ data class PageState<T>(
     /** 总数据 */
     val data: List<T>,
 
-    /** 当前页码，默认值为[refreshPage]-1 */
-    val page: Int,
+    /** 当前页码 */
+    val currentPage: Int,
 
     /** 当前页码的数据结果 */
     val result: Result<Unit>? = null,
 
     /** 是否还有更多数据 */
     val hasMore: Boolean? = null,
-
-    /** 刷新数据的页码，例如数据源规定页码从1开始，那么此参数就为1 */
-    val refreshPage: Int,
 
     /** 是否正在刷新 */
     val isRefreshing: Boolean = false,
@@ -223,7 +220,7 @@ private class PagePluginImpl<T>(
 ) : ViewModelPlugin(), PagePlugin<T> {
 
     private val loadMorePage: Int
-        get() = if (state.value.data.isEmpty()) refreshPage else state.value.page + 1
+        get() = if (state.value.data.isEmpty()) refreshPage else state.value.currentPage + 1
 
     private val _refreshPlugin = DataPlugin(Unit) {
         // 刷新之前取消加载更多
@@ -244,8 +241,7 @@ private class PagePluginImpl<T>(
     private val _state = MutableStateFlow(
         PageState(
             data = initial,
-            page = refreshPage - 1,
-            refreshPage = refreshPage,
+            currentPage = refreshPage - 1,
         )
     )
 
@@ -327,7 +323,7 @@ private class PagePluginImpl<T>(
                 _state.update {
                     it.copy(
                         data = result.data ?: it.data,
-                        page = newPage,
+                        currentPage = newPage,
                         result = success,
                         hasMore = result.hasMore,
                     )

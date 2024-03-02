@@ -52,40 +52,36 @@ class PagePluginTest {
         ) {
             awaitItem().let { state ->
                 assertEquals(emptyList<Int>(), state.data)
-                assertEquals(0, state.page)
+                assertEquals(0, state.currentPage)
                 assertEquals(true, state.isInitial)
                 assertEquals(null, state.hasMore)
-                assertEquals(1, state.refreshPage)
                 assertEquals(false, state.isRefreshing)
                 assertEquals(false, state.isLoadingMore)
             }
 
             awaitItem().let { state ->
                 assertEquals(emptyList<Int>(), state.data)
-                assertEquals(0, state.page)
+                assertEquals(0, state.currentPage)
                 assertEquals(true, state.isInitial)
                 assertEquals(null, state.hasMore)
-                assertEquals(1, state.refreshPage)
                 assertEquals(true, state.isRefreshing)
                 assertEquals(false, state.isLoadingMore)
             }
 
             awaitItem().let { state ->
                 assertEquals(PagePluginViewModel.pageList(), state.data)
-                assertEquals(1, state.page)
+                assertEquals(1, state.currentPage)
                 assertEquals(true, state.isSuccess)
                 assertEquals(true, state.hasMore)
-                assertEquals(1, state.refreshPage)
                 assertEquals(true, state.isRefreshing)
                 assertEquals(false, state.isLoadingMore)
             }
 
             awaitItem().let { state ->
                 assertEquals(PagePluginViewModel.pageList(), state.data)
-                assertEquals(1, state.page)
+                assertEquals(1, state.currentPage)
                 assertEquals(true, state.isSuccess)
                 assertEquals(true, state.hasMore)
-                assertEquals(1, state.refreshPage)
                 assertEquals(false, state.isRefreshing)
                 assertEquals(false, state.isLoadingMore)
             }
@@ -101,20 +97,18 @@ class PagePluginTest {
         ) {
             awaitItem().let { state ->
                 assertEquals(emptyList<Int>(), state.data)
-                assertEquals(0, state.page)
+                assertEquals(0, state.currentPage)
                 assertEquals(true, state.isInitial)
                 assertEquals(null, state.hasMore)
-                assertEquals(1, state.refreshPage)
                 assertEquals(false, state.isRefreshing)
                 assertEquals(false, state.isLoadingMore)
             }
 
             awaitItem().let { state ->
                 assertEquals(PagePluginViewModel.pageList(), state.data)
-                assertEquals(1, state.page)
+                assertEquals(1, state.currentPage)
                 assertEquals(true, state.isSuccess)
                 assertEquals(true, state.hasMore)
-                assertEquals(1, state.refreshPage)
                 assertEquals(false, state.isRefreshing)
                 assertEquals(false, state.isLoadingMore)
             }
@@ -130,10 +124,9 @@ class PagePluginTest {
         ) {
             awaitItem().let { state ->
                 assertEquals(emptyList<Int>(), state.data)
-                assertEquals(0, state.page)
+                assertEquals(0, state.currentPage)
                 assertEquals(true, state.isInitial)
                 assertEquals(null, state.hasMore)
-                assertEquals(1, state.refreshPage)
                 assertEquals(false, state.isRefreshing)
                 assertEquals(false, state.isLoadingMore)
             }
@@ -149,40 +142,36 @@ class PagePluginTest {
         ) {
             awaitItem().let { state ->
                 assertEquals(emptyList<Int>(), state.data)
-                assertEquals(0, state.page)
+                assertEquals(0, state.currentPage)
                 assertEquals(true, state.isInitial)
                 assertEquals(null, state.hasMore)
-                assertEquals(1, state.refreshPage)
                 assertEquals(false, state.isRefreshing)
                 assertEquals(false, state.isLoadingMore)
             }
 
             awaitItem().let { state ->
                 assertEquals(emptyList<Int>(), state.data)
-                assertEquals(0, state.page)
+                assertEquals(0, state.currentPage)
                 assertEquals(true, state.isInitial)
                 assertEquals(null, state.hasMore)
-                assertEquals(1, state.refreshPage)
                 assertEquals(true, state.isRefreshing)
                 assertEquals(false, state.isLoadingMore)
             }
 
             awaitItem().let { state ->
                 assertEquals(PagePluginViewModel.pageList(), state.data)
-                assertEquals(1, state.page)
+                assertEquals(1, state.currentPage)
                 assertEquals(true, state.isSuccess)
                 assertEquals(true, state.hasMore)
-                assertEquals(1, state.refreshPage)
                 assertEquals(true, state.isRefreshing)
                 assertEquals(false, state.isLoadingMore)
             }
 
             awaitItem().let { state ->
                 assertEquals(PagePluginViewModel.pageList(), state.data)
-                assertEquals(1, state.page)
+                assertEquals(1, state.currentPage)
                 assertEquals(true, state.isSuccess)
                 assertEquals(true, state.hasMore)
-                assertEquals(1, state.refreshPage)
                 assertEquals(false, state.isRefreshing)
                 assertEquals(false, state.isLoadingMore)
             }
@@ -199,40 +188,36 @@ class PagePluginTest {
         ) {
             awaitItem().let { state ->
                 assertEquals(emptyList<Int>(), state.data)
-                assertEquals(0, state.page)
+                assertEquals(0, state.currentPage)
                 assertEquals(true, state.isInitial)
                 assertEquals(null, state.hasMore)
-                assertEquals(1, state.refreshPage)
                 assertEquals(false, state.isRefreshing)
                 assertEquals(false, state.isLoadingMore)
             }
 
             awaitItem().let { state ->
                 assertEquals(emptyList<Int>(), state.data)
-                assertEquals(0, state.page)
+                assertEquals(0, state.currentPage)
                 assertEquals(true, state.isInitial)
                 assertEquals(null, state.hasMore)
-                assertEquals(1, state.refreshPage)
                 assertEquals(false, state.isRefreshing)
                 assertEquals(true, state.isLoadingMore)
             }
 
             awaitItem().let { state ->
                 assertEquals(PagePluginViewModel.pageList(), state.data)
-                assertEquals(1, state.page)
+                assertEquals(1, state.currentPage)
                 assertEquals(true, state.isSuccess)
                 assertEquals(true, state.hasMore)
-                assertEquals(1, state.refreshPage)
                 assertEquals(false, state.isRefreshing)
                 assertEquals(true, state.isLoadingMore)
             }
 
             awaitItem().let { state ->
                 assertEquals(PagePluginViewModel.pageList(), state.data)
-                assertEquals(1, state.page)
+                assertEquals(1, state.currentPage)
                 assertEquals(true, state.isSuccess)
                 assertEquals(true, state.hasMore)
-                assertEquals(1, state.refreshPage)
                 assertEquals(false, state.isRefreshing)
                 assertEquals(false, state.isLoadingMore)
             }
@@ -248,20 +233,18 @@ class PagePluginTest {
         ) {
             awaitItem().let { state ->
                 assertEquals(emptyList<Int>(), state.data)
-                assertEquals(0, state.page)
+                assertEquals(0, state.currentPage)
                 assertEquals(true, state.isInitial)
                 assertEquals(null, state.hasMore)
-                assertEquals(1, state.refreshPage)
                 assertEquals(false, state.isRefreshing)
                 assertEquals(false, state.isLoadingMore)
             }
 
             awaitItem().let { state ->
                 assertEquals(PagePluginViewModel.pageList(), state.data)
-                assertEquals(1, state.page)
+                assertEquals(1, state.currentPage)
                 assertEquals(true, state.isSuccess)
                 assertEquals(true, state.hasMore)
-                assertEquals(1, state.refreshPage)
                 assertEquals(false, state.isRefreshing)
                 assertEquals(false, state.isLoadingMore)
             }
@@ -277,10 +260,9 @@ class PagePluginTest {
         ) {
             awaitItem().let { state ->
                 assertEquals(emptyList<Int>(), state.data)
-                assertEquals(0, state.page)
+                assertEquals(0, state.currentPage)
                 assertEquals(true, state.isInitial)
                 assertEquals(null, state.hasMore)
-                assertEquals(1, state.refreshPage)
                 assertEquals(false, state.isRefreshing)
                 assertEquals(false, state.isLoadingMore)
             }
@@ -296,40 +278,36 @@ class PagePluginTest {
         ) {
             awaitItem().let { state ->
                 assertEquals(emptyList<Int>(), state.data)
-                assertEquals(0, state.page)
+                assertEquals(0, state.currentPage)
                 assertEquals(true, state.isInitial)
                 assertEquals(null, state.hasMore)
-                assertEquals(1, state.refreshPage)
                 assertEquals(false, state.isRefreshing)
                 assertEquals(false, state.isLoadingMore)
             }
 
             awaitItem().let { state ->
                 assertEquals(emptyList<Int>(), state.data)
-                assertEquals(0, state.page)
+                assertEquals(0, state.currentPage)
                 assertEquals(true, state.isInitial)
                 assertEquals(null, state.hasMore)
-                assertEquals(1, state.refreshPage)
                 assertEquals(false, state.isRefreshing)
                 assertEquals(true, state.isLoadingMore)
             }
 
             awaitItem().let { state ->
                 assertEquals(PagePluginViewModel.pageList(), state.data)
-                assertEquals(1, state.page)
+                assertEquals(1, state.currentPage)
                 assertEquals(true, state.isSuccess)
                 assertEquals(true, state.hasMore)
-                assertEquals(1, state.refreshPage)
                 assertEquals(false, state.isRefreshing)
                 assertEquals(true, state.isLoadingMore)
             }
 
             awaitItem().let { state ->
                 assertEquals(PagePluginViewModel.pageList(), state.data)
-                assertEquals(1, state.page)
+                assertEquals(1, state.currentPage)
                 assertEquals(true, state.isSuccess)
                 assertEquals(true, state.hasMore)
-                assertEquals(1, state.refreshPage)
                 assertEquals(false, state.isRefreshing)
                 assertEquals(false, state.isLoadingMore)
             }
