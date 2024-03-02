@@ -273,8 +273,9 @@ private class PagePluginImpl<T>(
             notifyLoading = notifyLoading,
             ignoreActive = ignoreActive,
             canLoad = {
+                val page = if (state.value.data.isEmpty()) refreshPage else state.value.page + 1
                 canLoadData(
-                    page = state.value.page + 1,
+                    page = page,
                     canLoad = canLoad,
                 )
             },
