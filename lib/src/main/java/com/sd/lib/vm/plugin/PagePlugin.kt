@@ -219,17 +219,17 @@ private class PagePluginImpl<T>(
     private val onLoad: suspend PagePlugin.LoadScope<T>.(page: Int) -> PagePlugin.LoadResult<T>,
 ) : ViewModelPlugin(), PagePlugin<T> {
 
+    private val loadMorePage: Int
+        get() = if (state.value.data.isEmpty()) refreshPage else state.value.page + 1
+
     private val _refreshPlugin = DataPlugin(Unit) {
         // 刷新之前取消加载更多
         _loadMorePlugin.cancelLoad()
-
-        val page = refreshPage
-        loadData(page)
+        loadData(refreshPage)
     }
 
     private val _loadMorePlugin = DataPlugin(Unit) {
-        val page = state.value.page + 1
-        loadData(page)
+        loadData(loadMorePage)
     }
 
     private val _state = MutableStateFlow(
@@ -273,9 +273,8 @@ private class PagePluginImpl<T>(
             notifyLoading = notifyLoading,
             ignoreActive = ignoreActive,
             canLoad = {
-                val page = if (state.value.data.isEmpty()) refreshPage else state.value.page + 1
                 canLoadData(
-                    page = page,
+                    page = loadMorePage,
                     canLoad = canLoad,
                 )
             },
