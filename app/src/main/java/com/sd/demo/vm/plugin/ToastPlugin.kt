@@ -7,8 +7,12 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 
-interface ToastPlugin : StatePlugin<Flow<String>> {
+interface ToastPlugin : StatePlugin<Flow<ToastPlugin.State>> {
     fun showToast(msg: String)
+
+    data class State(
+        val msg: String
+    )
 }
 
 fun ToastPlugin(): ToastPlugin {
@@ -16,12 +20,12 @@ fun ToastPlugin(): ToastPlugin {
 }
 
 private class ToastPluginImpl : ViewModelPlugin(), ToastPlugin {
-    private val _state = MutableSharedFlow<String>()
-    override val state: Flow<String> = _state.asSharedFlow()
+    private val _state = MutableSharedFlow<ToastPlugin.State>()
+    override val state: Flow<ToastPlugin.State> = _state.asSharedFlow()
 
     override fun showToast(msg: String) {
         viewModelScope.launch {
-            _state.emit(msg)
+            _state.emit(ToastPlugin.State(msg = msg))
         }
     }
 }
