@@ -2,6 +2,7 @@ package com.sd.lib.vm.plugin
 
 import com.sd.lib.coroutine.FMutator
 import com.sd.lib.vm.FViewModel
+import com.sd.lib.vm.PluginViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -11,7 +12,11 @@ import kotlinx.coroutines.launch
 /**
  * 数据加载
  */
-interface DataPlugin<T> : StatePlugin<DataState<T>> {
+interface DataPlugin<T> : PluginViewModel.Plugin {
+
+    /** 状态 */
+    val state: StateFlow<DataState<T>>
+
     /**
      * 加载数据，如果上一次加载还未完成，再次调用此方法，会取消上一次加载
      *
