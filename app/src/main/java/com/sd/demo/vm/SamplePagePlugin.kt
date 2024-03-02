@@ -251,10 +251,6 @@ internal class MyPageViewModel : PluginViewModel<Unit>() {
             hasMore = true,
         )
     }
-
-    init {
-        userPage.refresh()
-    }
 }
 
 private fun randomBoolean(): Boolean = listOf(true, false).random()
