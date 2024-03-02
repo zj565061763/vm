@@ -118,7 +118,7 @@ interface PagePlugin<T> : StatePlugin<StateFlow<PageState<T>>> {
 fun <T> PagePlugin(
     initial: List<T> = emptyList(),
     refreshPage: Int = 1,
-    canLoad: suspend PagePlugin.LoadScope<T>.(page: Int) -> Boolean = { page ->
+    canLoad: suspend PagePlugin.LoadScope<T>.(page: Int) -> Boolean = {
         if (isRefresh) {
             true
         } else {

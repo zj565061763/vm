@@ -27,7 +27,7 @@ open class FViewModel<I> : ViewModel() {
     var isDestroyed: Boolean = false
         private set(value) {
             require(value) { "Require true value." }
-            field = value
+            field = true
         }
 
     @Volatile
