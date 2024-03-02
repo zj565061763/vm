@@ -195,6 +195,10 @@ internal class MyPageViewModel : PluginViewModel<Unit>() {
         page: Int,
         isRefresh: Boolean,
     ): PagePlugin.LoadResult<UserModel> {
+
+        val uuid = UUID.randomUUID().toString()
+        logMsg { "load page:$page $uuid" }
+
         // 模拟加载数据
         delay(1_000)
 
@@ -202,12 +206,14 @@ internal class MyPageViewModel : PluginViewModel<Unit>() {
             if (randomBoolean()) {
                 _listUser.clear()
                 return if (randomBoolean()) {
+                    logMsg { "load empty success $uuid" }
                     PagePlugin.loadSuccess(
                         data = emptyList(),
                         pageSize = 0,
                         hasMore = false,
                     )
                 } else {
+                    logMsg { "load empty failure $uuid" }
                     PagePlugin.loadFailure(
                         exception = Exception("Connection timeout."),
                         data = emptyList(),
@@ -217,6 +223,7 @@ internal class MyPageViewModel : PluginViewModel<Unit>() {
         }
 
         if (page > 3) {
+            logMsg { "load no more data $uuid" }
             return PagePlugin.loadSuccess(
                 data = null,
                 pageSize = 0,
@@ -237,6 +244,7 @@ internal class MyPageViewModel : PluginViewModel<Unit>() {
             _listUser.addAll(list)
         }
 
+        logMsg { "load success $uuid" }
         return PagePlugin.loadSuccess(
             data = _listUser.toList(),
             pageSize = list.size,
