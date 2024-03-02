@@ -66,7 +66,7 @@ open class FViewModel<I> : ViewModel() {
     }
 
     /**
-     * 是否可以触发意图
+     * 是否可以触发意图，[viewModelScope]触发
      */
     protected open suspend fun canDispatchIntent(intent: I): Boolean {
         return isVMActive || intent is IgnoreActiveIntent
