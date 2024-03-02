@@ -55,10 +55,10 @@ private fun Content(
     modifier: Modifier = Modifier,
     vm: MyPageViewModel = viewModel()
 ) {
-    val userPage by vm.userPage.state.collectAsStateWithLifecycle()
+    val userPage by vm.pagePlugin.state.collectAsStateWithLifecycle()
 
-    LaunchedEffect(vm.userPage) {
-        vm.userPage.refresh()
+    LaunchedEffect(vm.pagePlugin) {
+        vm.pagePlugin.refresh()
     }
 
     FSwipeRefresh(
@@ -68,8 +68,8 @@ private fun Content(
         },
         isRefreshingStart = userPage.isRefreshing,
         isRefreshingEnd = null,
-        onRefreshStart = { vm.userPage.refresh() },
-        onRefreshEnd = { vm.userPage.loadMore() },
+        onRefreshStart = { vm.pagePlugin.refresh() },
+        onRefreshEnd = { vm.pagePlugin.loadMore() },
     ) {
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
@@ -184,10 +184,8 @@ private fun FooterView(
 internal class MyPageViewModel : PluginViewModel<Unit>() {
     private val _listUser = mutableListOf<UserModel>()
 
-    /** 用户分页数据 */
-    val userPage = PagePlugin { page ->
-        loadUsers(page, page == currentState.refreshPage)
-    }.register()
+    /** 分页数据 */
+    val pagePlugin = PagePlugin { loadUsers(it, isRefresh) }.register()
 
     /**
      * 加载用户分页数据

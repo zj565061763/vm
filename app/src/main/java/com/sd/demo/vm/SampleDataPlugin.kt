@@ -47,7 +47,7 @@ private fun Content(
     modifier: Modifier = Modifier,
     vm: MyDataViewModel = viewModel()
 ) {
-    val state by vm.data.state.collectAsStateWithLifecycle()
+    val state by vm.dataPlugin.state.collectAsStateWithLifecycle()
 
     Column(
         modifier = modifier.fillMaxSize(),
@@ -59,10 +59,10 @@ private fun Content(
             onClick = {
                 if (state.isLoading) {
                     // 取消加载
-                    vm.data.cancelLoad()
+                    vm.dataPlugin.cancelLoad()
                 } else {
                     // 加载
-                    vm.data.load()
+                    vm.dataPlugin.load()
                 }
             },
         ) {
@@ -103,7 +103,7 @@ class MyDataViewModel : PluginViewModel<Unit>() {
     private var _count = 0
 
     /** 数据 */
-    val data = DataPlugin(UserModel(name = "")) { loadData() }.register()
+    val dataPlugin = DataPlugin(UserModel(name = "")) { loadData() }.register()
 
     /**
      * 加载数据
