@@ -59,10 +59,17 @@ open class FViewModel<I> : ViewModel() {
     fun dispatch(intent: I) {
         if (isDestroyed) return
         viewModelScope.launch {
-            if (isVMActive || intent is IgnoreActiveIntent) {
+            if (canDispatchIntent(intent)) {
                 handleIntent(intent)
             }
         }
+    }
+
+    /**
+     * 是否可以触发意图
+     */
+    protected open suspend fun canDispatchIntent(intent: I): Boolean {
+        return isVMActive || intent is IgnoreActiveIntent
     }
 
     /**
