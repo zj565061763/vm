@@ -1,7 +1,6 @@
 package com.sd.lib.vm.plugin
 
 import com.sd.lib.vm.FViewModel
-import com.sd.lib.vm.PluginViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -13,10 +12,7 @@ import kotlinx.coroutines.launch
 /**
  * 分页管理
  */
-interface PagePlugin<T> : PluginViewModel.Plugin {
-
-    /** 状态 */
-    val state: StateFlow<PageState<T>>
+interface PagePlugin<T> : StatePlugin<StateFlow<PageState<T>>> {
 
     /**
      * 刷新数据
