@@ -68,49 +68,10 @@ interface PagePlugin<T> : StatePlugin<StateFlow<PageState<T>>> {
             val data: List<T>? = null,
         ) : LoadResult<T>
 
-        data object None : LoadResult<Nothing>
-    }
-
-    companion object {
-        /**
-         * 加载成功
-         *
-         * @param data 总数据，null-数据不变
-         * @param pageSize 本页实际加载到的数据个数
-         * @param hasMore 是否还有更多数据
-         */
-        fun <T> loadSuccess(
-            data: List<T>?,
-            pageSize: Int,
-            hasMore: Boolean,
-        ): LoadResult.Success<T> {
-            return LoadResult.Success(
-                data = data,
-                pageSize = pageSize,
-                hasMore = hasMore,
-            )
-        }
-
-        /**
-         * 加载失败
-         *
-         * @param exception 异常信息
-         * @param data 总数据，null-数据不变
-         */
-        fun <T> loadFailure(
-            exception: Throwable,
-            data: List<T>? = null,
-        ): LoadResult.Failure<T> {
-            return LoadResult.Failure(
-                exception = exception,
-                data = data,
-            )
-        }
-
-        /**
-         * 无结果
-         */
-        fun loadNone(): LoadResult.None = LoadResult.None
+        data class None<T>(
+            /** 总数据，null-数据不变 */
+            val data: List<T>? = null,
+        ) : LoadResult<T>
     }
 }
 
@@ -139,6 +100,54 @@ fun <T> PagePlugin(
         refreshPage = refreshPage,
         canLoad = canLoad,
         onLoad = onLoad,
+    )
+}
+
+/**
+ * 加载成功
+ *
+ * @param data 总数据，null-数据不变
+ * @param pageSize 本页实际加载到的数据个数
+ * @param hasMore 是否还有更多数据
+ */
+fun <T> pageLoadSuccess(
+    data: List<T>?,
+    pageSize: Int,
+    hasMore: Boolean,
+): PagePlugin.LoadResult<T> {
+    return PagePlugin.LoadResult.Success(
+        data = data,
+        pageSize = pageSize,
+        hasMore = hasMore,
+    )
+}
+
+/**
+ * 加载失败
+ *
+ * @param exception 异常信息
+ * @param data 总数据，null-数据不变
+ */
+fun <T> pageLoadFailure(
+    exception: Throwable,
+    data: List<T>? = null,
+): PagePlugin.LoadResult<T> {
+    return PagePlugin.LoadResult.Failure(
+        exception = exception,
+        data = data,
+    )
+}
+
+/**
+ * 加载无结果
+ *
+ * @param data 总数据，null-数据不变
+ */
+fun <T> pageLoadNone(
+    data: List<T>? = null,
+): PagePlugin.LoadResult<T> {
+    return PagePlugin.LoadResult.None(
+        data = data,
     )
 }
 
@@ -351,7 +360,11 @@ private class PagePluginImpl<T>(
                 }
             }
 
-            is PagePlugin.LoadResult.None -> Result.success(Unit)
+            is PagePlugin.LoadResult.None -> Result.success(Unit).also {
+                _state.update {
+                    it.copy(data = result.data ?: it.data)
+                }
+            }
         }
     }
 

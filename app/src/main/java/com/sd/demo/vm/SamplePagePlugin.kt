@@ -35,6 +35,8 @@ import com.sd.lib.vm.plugin.PagePlugin
 import com.sd.lib.vm.plugin.PageState
 import com.sd.lib.vm.plugin.onViewFailureEmpty
 import com.sd.lib.vm.plugin.onViewSuccessEmpty
+import com.sd.lib.vm.plugin.pageLoadFailure
+import com.sd.lib.vm.plugin.pageLoadSuccess
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import java.util.UUID
@@ -211,14 +213,14 @@ internal class MyPageViewModel : PluginViewModel<Unit>() {
                 _listUser.clear()
                 return if (randomBoolean()) {
                     logMsg { "load empty success $uuid" }
-                    PagePlugin.loadSuccess(
+                    pageLoadSuccess(
                         data = emptyList(),
                         pageSize = 0,
                         hasMore = false,
                     )
                 } else {
                     logMsg { "load empty failure $uuid" }
-                    PagePlugin.loadFailure(
+                    pageLoadFailure(
                         exception = Exception("Connection timeout."),
                         data = emptyList(),
                     )
@@ -228,7 +230,7 @@ internal class MyPageViewModel : PluginViewModel<Unit>() {
 
         if (page > 3) {
             logMsg { "load no more data $uuid" }
-            return PagePlugin.loadSuccess(
+            return pageLoadSuccess(
                 data = null,
                 pageSize = 0,
                 hasMore = false,
@@ -249,7 +251,7 @@ internal class MyPageViewModel : PluginViewModel<Unit>() {
         }
 
         logMsg { "load success $uuid" }
-        return PagePlugin.loadSuccess(
+        return pageLoadSuccess(
             data = _listUser.toList(),
             pageSize = list.size,
             hasMore = true,
