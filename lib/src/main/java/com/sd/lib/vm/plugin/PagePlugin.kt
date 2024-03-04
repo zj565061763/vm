@@ -250,21 +250,8 @@ private class PagePluginImpl<T>(
     private val loadMorePage: Int
         get() = if (state.value.data.isEmpty()) refreshPage else _currentPage + 1
 
-    private val _refreshPlugin = DataPlugin(Unit) {
-        // 刷新之前取消加载更多
-        _loadMorePlugin.cancelLoad()
-        loadData(
-            page = refreshPage,
-            isRefresh = true,
-        )
-    }
-
-    private val _loadMorePlugin = DataPlugin(Unit) {
-        loadData(
-            page = loadMorePage,
-            isRefresh = false,
-        )
-    }
+    private val _refreshPlugin = LoadPlugin()
+    private val _loadMorePlugin = LoadPlugin()
 
     private val _state = MutableStateFlow(PageState(data = initial))
 
@@ -285,7 +272,14 @@ private class PagePluginImpl<T>(
                     canLoad = canLoad,
                 )
             },
-        )
+        ) {
+            // 刷新之前取消加载更多
+            _loadMorePlugin.cancelLoad()
+            loadData(
+                page = refreshPage,
+                isRefresh = true,
+            )
+        }
     }
 
     override fun cancelRefresh() {
@@ -307,16 +301,18 @@ private class PagePluginImpl<T>(
                     canLoad = canLoad,
                 )
             },
-        )
+        ) {
+            loadData(
+                page = loadMorePage,
+                isRefresh = false,
+            )
+        }
     }
 
     override fun cancelLoadMore() {
         _loadMorePlugin.cancelLoad()
     }
 
-    /**
-     * 是否可以加载数据
-     */
     private suspend fun canLoadData(
         page: Int,
         isRefresh: Boolean,
@@ -326,31 +322,22 @@ private class PagePluginImpl<T>(
         return with(newLoadScope(isRefresh)) { canLoadBlock(page) }
     }
 
-    /**
-     * 加载数据
-     */
-    private suspend fun loadData(
-        page: Int,
-        isRefresh: Boolean,
-    ): Result<Unit> {
+    private suspend fun loadData(page: Int, isRefresh: Boolean) {
         val result = with(newLoadScope(isRefresh)) { onLoad(page) }
-        return handleLoadResult(
+        handleLoadResult(
             result = result,
             page = page,
             isRefresh = isRefresh,
         )
     }
 
-    /**
-     * 处理加载结果
-     */
     private fun handleLoadResult(
         result: PagePlugin.LoadResult<T>,
         page: Int,
         isRefresh: Boolean,
-    ): Result<Unit> {
-        return when (result) {
-            is PagePlugin.LoadResult.Success<T> -> Result.success(Unit).also {
+    ) {
+        when (result) {
+            is PagePlugin.LoadResult.Success<T> -> {
                 _currentPage = if (page == refreshPage) {
                     // refresh
                     refreshPage
@@ -369,7 +356,7 @@ private class PagePluginImpl<T>(
                 }
             }
 
-            is PagePlugin.LoadResult.Failure<T> -> Result.failure<Unit>(result.exception).also {
+            is PagePlugin.LoadResult.Failure<T> -> {
                 _state.update {
                     it.copy(
                         data = result.data ?: it.data,
@@ -378,7 +365,7 @@ private class PagePluginImpl<T>(
                 }
             }
 
-            is PagePlugin.LoadResult.None -> Result.success(Unit).also {
+            is PagePlugin.LoadResult.None<T> -> {
                 _state.update {
                     it.copy(data = result.data ?: it.data)
                 }
