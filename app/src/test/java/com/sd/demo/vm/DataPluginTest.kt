@@ -157,10 +157,8 @@ private suspend fun TestScope.testLoad(
     val vm = DataPluginViewModel().apply { setActive(initialActive) }
     assertEquals(initialActive, vm.isVMActive)
 
-    val plugin = vm.plugin
-
-    plugin.state.test {
-        plugin.load(
+    vm.state.test {
+        vm.load(
             notifyLoading = notifyLoading,
             ignoreActive = ignoreActive,
         )
@@ -172,12 +170,21 @@ private suspend fun TestScope.testLoad(
 @VisibleForTesting
 private class DataPluginViewModel : PluginViewModel<Unit>() {
     private var _count = 0
+    private val _plugin = DataPlugin(_count).register()
 
-    val plugin = DataPlugin(_count) { loadData() }.register()
+    val state = _plugin.state
 
-    private suspend fun loadData(): Result<Int> {
-        delay(1.seconds)
-        _count++
-        return Result.success(_count)
+    fun load(
+        notifyLoading: Boolean,
+        ignoreActive: Boolean,
+    ) {
+        _plugin.load(
+            notifyLoading = notifyLoading,
+            ignoreActive = ignoreActive,
+        ) {
+            delay(1.seconds)
+            _count++
+            Result.success(_count)
+        }
     }
 }

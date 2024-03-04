@@ -47,7 +47,7 @@ private fun Content(
     modifier: Modifier = Modifier,
     vm: MyDataViewModel = viewModel()
 ) {
-    val state by vm.dataPlugin.state.collectAsStateWithLifecycle()
+    val state by vm.state.collectAsStateWithLifecycle()
 
     Column(
         modifier = modifier.fillMaxSize(),
@@ -59,10 +59,10 @@ private fun Content(
             onClick = {
                 if (state.isLoading) {
                     // 取消加载
-                    vm.dataPlugin.cancelLoad()
+                    vm.cancelLoad()
                 } else {
                     // 加载
-                    vm.dataPlugin.load()
+                    vm.load()
                 }
             },
         ) {
@@ -101,35 +101,44 @@ private fun Content(
 
 class MyDataViewModel : PluginViewModel<Unit>() {
     private var _count = 0
+    private val _plugin = DataPlugin(UserModel(name = "")).register()
 
-    /** 数据 */
-    val dataPlugin = DataPlugin(UserModel(name = "")) { loadData() }.register()
+    val state = _plugin.state
 
     /**
      * 加载数据
      */
-    private suspend fun loadData(): Result<UserModel> {
-        val uuid = UUID.randomUUID().toString()
-        logMsg { "load start $uuid ($_count)" }
+    fun load() {
+        _plugin.load {
+            val uuid = UUID.randomUUID().toString()
+            logMsg { "load start $uuid ($_count)" }
 
-        try {
-            // 模拟加载数据
-            delay(2_000)
-        } catch (e: CancellationException) {
-            logMsg { "load cancel $uuid" }
-            throw e
+            try {
+                // 模拟加载数据
+                delay(2_000)
+            } catch (e: CancellationException) {
+                logMsg { "load cancel $uuid" }
+                throw e
+            }
+
+            val count = _count
+            val success = count % 2 == 0
+            _count++
+
+            if (success) {
+                logMsg { "load success $uuid" }
+                Result.success(UserModel(name = uuid))
+            } else {
+                logMsg { "load failure $uuid" }
+                Result.failure(Exception("count $count"))
+            }
         }
+    }
 
-        val count = _count
-        val success = count % 2 == 0
-        _count++
-
-        return if (success) {
-            logMsg { "load success $uuid" }
-            Result.success(UserModel(name = uuid))
-        } else {
-            logMsg { "load failure $uuid" }
-            Result.failure(Exception("count $count"))
-        }
+    /**
+     * 取消加载数据
+     */
+    fun cancelLoad() {
+        _plugin.cancelLoad()
     }
 }

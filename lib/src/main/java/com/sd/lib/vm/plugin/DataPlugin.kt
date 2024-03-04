@@ -1,29 +1,30 @@
 package com.sd.lib.vm.plugin
 
-import com.sd.lib.coroutine.FMutator
 import com.sd.lib.vm.FViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 /**
- * 数据加载
+ * 加载数据
  */
 interface DataPlugin<T> : StatePlugin<StateFlow<DataState<T>>> {
-
     /**
      * 加载数据，如果上一次加载还未完成，再次调用此方法，会取消上一次加载
      *
      * @param notifyLoading 是否通知[DataState.isLoading]
      * @param ignoreActive 是否忽略激活状态[FViewModel.isVMActive]
-     * @param canLoad 是否可以加载数据
+     * @param canLoad 是否可以加载
+     * @param onLoad 加载回调
      */
     fun load(
         notifyLoading: Boolean = true,
         ignoreActive: Boolean = false,
-        canLoad: (suspend LoadScope<T>.() -> Boolean)? = null,
+        canLoad: suspend LoadScope<T>.() -> Boolean = { true },
+        onLoad: suspend LoadScope<T>.() -> Result<T>,
     )
 
     /**
@@ -41,19 +42,9 @@ interface DataPlugin<T> : StatePlugin<StateFlow<DataState<T>>> {
  * [DataPlugin]
  *
  * @param initial 初始值
- * @param canLoad 是否可以加载数据
- * @param onLoad 数据加载回调
  */
-fun <T> DataPlugin(
-    initial: T,
-    canLoad: suspend DataPlugin.LoadScope<T>.() -> Boolean = { true },
-    onLoad: suspend DataPlugin.LoadScope<T>.() -> Result<T>,
-): DataPlugin<T> {
-    return DataPluginImpl(
-        initial = initial,
-        canLoad = canLoad,
-        onLoad = onLoad,
-    )
+fun <T> DataPlugin(initial: T): DataPlugin<T> {
+    return DataPluginImpl(initial = initial)
 }
 
 //---------- state ----------
@@ -104,14 +95,9 @@ inline fun <T> DataState<T>.onFailure(action: DataState<T>.(exception: Throwable
 
 //---------- impl ----------
 
-private class DataPluginImpl<T>(
-    initial: T,
-    private val canLoad: suspend DataPlugin.LoadScope<T>.() -> Boolean,
-    private val onLoad: suspend DataPlugin.LoadScope<T>.() -> Result<T>,
-) : ViewModelPlugin(), DataPlugin<T> {
+private class DataPluginImpl<T>(initial: T) : ViewModelPlugin(), DataPlugin<T> {
 
-    /** 互斥修改器 */
-    private val _mutator = FMutator()
+    private val _loadPlugin = LoadPlugin()
 
     private val _state = MutableStateFlow(DataState(data = initial))
     override val state: StateFlow<DataState<T>> = _state.asStateFlow()
@@ -124,53 +110,26 @@ private class DataPluginImpl<T>(
     override fun load(
         notifyLoading: Boolean,
         ignoreActive: Boolean,
-        canLoad: (suspend DataPlugin.LoadScope<T>.() -> Boolean)?,
+        canLoad: suspend DataPlugin.LoadScope<T>.() -> Boolean,
+        onLoad: suspend DataPlugin.LoadScope<T>.() -> Result<T>,
     ) {
-        viewModelScope.launch {
-            loadData(
-                notifyLoading = notifyLoading,
-                ignoreActive = ignoreActive,
-                canLoad = canLoad,
-            )
-        }
-    }
-
-    override fun cancelLoad() {
-        _mutator.cancel()
-    }
-
-    /**
-     * 加载数据
-     */
-    private suspend fun loadData(
-        notifyLoading: Boolean,
-        ignoreActive: Boolean,
-        canLoad: (suspend DataPlugin.LoadScope<T>.() -> Boolean)?,
-    ) {
-        if (isDestroyed) return
-        if (isVMActive || ignoreActive) {
-            val canLoadBlock = canLoad ?: this@DataPluginImpl.canLoad
-            if (with(_loadScopeImpl) { canLoadBlock() }) {
-                try {
-                    _mutator.mutate {
-                        if (notifyLoading) {
-                            _state.update { it.copy(isLoading = true) }
-                        }
-                        val result = with(_loadScopeImpl) { onLoad() }
-                        handleLoadResult(result)
-                    }
-                } finally {
-                    if (notifyLoading) {
-                        _state.update { it.copy(isLoading = false) }
-                    }
+        _loadPlugin.load(
+            notifyLoading = notifyLoading,
+            ignoreActive = ignoreActive,
+        ) {
+            with(_loadScopeImpl) {
+                if (canLoad()) {
+                    val result = onLoad()
+                    handleLoadResult(result)
                 }
             }
         }
     }
 
-    /**
-     * 处理加载结果
-     */
+    override fun cancelLoad() {
+        _loadPlugin.cancelLoad()
+    }
+
     private fun handleLoadResult(result: Result<T>) {
         result.onSuccess { data ->
             _state.update {
@@ -185,6 +144,21 @@ private class DataPluginImpl<T>(
             _state.update {
                 it.copy(result = Result.failure(throwable))
             }
+        }
+    }
+
+    override fun onInit() {
+        super.onInit()
+        _loadPlugin.register()
+
+        viewModelScope.launch {
+            _loadPlugin.state
+                .map { it.isLoading }
+                .collect { isLoading ->
+                    _state.update {
+                        it.copy(isLoading = isLoading)
+                    }
+                }
         }
     }
 }
