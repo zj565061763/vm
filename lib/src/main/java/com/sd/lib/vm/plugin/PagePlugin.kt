@@ -155,7 +155,7 @@ fun <T> pageLoadNone(
 
 data class PageState<T>(
     /** 总数据 */
-    val data: List<T>,
+    val data: List<T> = emptyList(),
 
     /** 最后一次加载的页码 */
     val loadPage: Int? = null,
