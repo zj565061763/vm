@@ -23,7 +23,7 @@ interface LoadPlugin : StatePlugin<StateFlow<LoadState>> {
     fun load(
         notifyLoading: Boolean = true,
         ignoreActive: Boolean = false,
-        canLoad: (suspend () -> Boolean)? = null,
+        canLoad: suspend () -> Boolean = { true },
         onLoad: suspend () -> Unit,
     )
 
@@ -60,7 +60,7 @@ private class LoadPluginImpl : ViewModelPlugin(), LoadPlugin {
     override fun load(
         notifyLoading: Boolean,
         ignoreActive: Boolean,
-        canLoad: (suspend () -> Boolean)?,
+        canLoad: suspend () -> Boolean,
         onLoad: suspend () -> Unit,
     ) {
         viewModelScope.launch {
@@ -80,12 +80,12 @@ private class LoadPluginImpl : ViewModelPlugin(), LoadPlugin {
     private suspend fun loadInternal(
         notifyLoading: Boolean,
         ignoreActive: Boolean,
-        canLoad: (suspend () -> Boolean)?,
+        canLoad: suspend () -> Boolean,
         onLoad: suspend () -> Unit,
     ) {
         if (isDestroyed) return
         if (isVMActive || ignoreActive) {
-            if (canLoad?.invoke() != false) {
+            if (canLoad()) {
                 try {
                     _mutator.mutate {
                         if (notifyLoading) {
