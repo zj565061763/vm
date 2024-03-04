@@ -4,6 +4,7 @@ import com.sd.lib.vm.FViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -154,6 +155,7 @@ private class DataPluginImpl<T>(initial: T) : ViewModelPlugin(), DataPlugin<T> {
         viewModelScope.launch {
             _loadPlugin.state
                 .map { it.isLoading }
+                .distinctUntilChanged()
                 .collect { isLoading ->
                     _state.update {
                         it.copy(isLoading = isLoading)
