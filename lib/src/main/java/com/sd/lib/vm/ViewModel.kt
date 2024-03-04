@@ -78,6 +78,16 @@ open class FViewModel<I> : ViewModel() {
     protected open suspend fun handleIntent(intent: I) = Unit
 
     /**
+     * 未激活 -> 激活，[viewModelScope]触发
+     */
+    protected open suspend fun onActive() = Unit
+
+    /**
+     * 激活 -> 未激活，[viewModelScope]触发
+     */
+    protected open suspend fun onInActive() = Unit
+
+    /**
      * 销毁回调
      */
     protected open fun onDestroy() = Unit
@@ -88,5 +98,15 @@ open class FViewModel<I> : ViewModel() {
         _isVMActive = false
         singleDispatcher.cancel()
         onDestroy()
+    }
+
+    init {
+        viewModelScope.launch {
+            isActiveFlow.collect { active ->
+                launch {
+                    if (active) onActive() else onInActive()
+                }
+            }
+        }
     }
 }

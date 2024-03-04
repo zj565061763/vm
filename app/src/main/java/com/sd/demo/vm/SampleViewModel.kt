@@ -22,13 +22,11 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sd.demo.vm.plugin.LoadingDialogPlugin
 import com.sd.demo.vm.plugin.ToastPlugin
 import com.sd.lib.vm.PluginViewModel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 class SampleViewModel : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -126,17 +124,19 @@ internal class MyViewModel : PluginViewModel<MyViewModel.Intent>() {
         }
     }
 
+    override suspend fun onActive() {
+        super.onActive()
+        logMsg { "onActive ${Thread.currentThread().name}" }
+    }
+
+    override suspend fun onInActive() {
+        super.onInActive()
+        logMsg { "onInActive ${Thread.currentThread().name}" }
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         logMsg { "onDestroy ${Thread.currentThread().name}" }
-    }
-
-    init {
-        viewModelScope.launch {
-            isActiveFlow.collect {
-                logMsg { "active:$it ${Thread.currentThread().name}" }
-            }
-        }
     }
 
     sealed interface Intent {
