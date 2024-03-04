@@ -117,13 +117,10 @@ private class DataPluginImpl<T>(initial: T) : ViewModelPlugin(), DataPlugin<T> {
         _loadPlugin.load(
             notifyLoading = notifyLoading,
             ignoreActive = ignoreActive,
+            canLoad = { with(_loadScopeImpl) { canLoad() } },
         ) {
-            with(_loadScopeImpl) {
-                if (canLoad()) {
-                    val result = onLoad()
-                    handleLoadResult(result)
-                }
-            }
+            val result = with(_loadScopeImpl) { onLoad() }
+            handleLoadResult(result)
         }
     }
 
