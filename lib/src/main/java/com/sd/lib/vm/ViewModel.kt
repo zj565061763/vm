@@ -9,6 +9,8 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.filterNot
 import kotlinx.coroutines.launch
 
 /**
@@ -78,16 +80,6 @@ open class FViewModel<I> : ViewModel() {
     protected open suspend fun handleIntent(intent: I) = Unit
 
     /**
-     * 未激活 -> 激活，[viewModelScope]触发
-     */
-    protected open suspend fun onActive() = Unit
-
-    /**
-     * 激活 -> 未激活，[viewModelScope]触发
-     */
-    protected open suspend fun onInActive() = Unit
-
-    /**
      * 销毁回调
      */
     protected open fun onDestroy() = Unit
@@ -99,14 +91,30 @@ open class FViewModel<I> : ViewModel() {
         singleDispatcher.cancel()
         onDestroy()
     }
+}
 
-    init {
-        viewModelScope.launch {
-            isActiveFlow.collect { active ->
-                launch {
-                    if (active) onActive() else onInActive()
-                }
+/**
+ * 未激活 -> 激活，[viewModelScope]触发
+ */
+fun FViewModel<*>.onActive(block: suspend () -> Unit) {
+    viewModelScope.launch {
+        isActiveFlow
+            .filter { it }
+            .collect {
+                launch { block() }
             }
-        }
+    }
+}
+
+/**
+ * 激活 -> 未激活，[viewModelScope]触发
+ */
+fun FViewModel<*>.onInActive(block: suspend () -> Unit) {
+    viewModelScope.launch {
+        isActiveFlow
+            .filterNot { it }
+            .collect {
+                launch { block() }
+            }
     }
 }
