@@ -141,16 +141,16 @@ data class PageState<T>(
     /** 总数据 */
     val data: List<T> = emptyList(),
 
-    /** 最后一次加载的页码，null-未知 */
+    /** 最后一次加载的页码 */
     val loadPage: Int? = null,
 
-    /** 最后一次加载的结果，null-未知 */
+    /** 最后一次加载的结果 */
     val loadResult: Result<Unit>? = null,
 
-    /** 刷新或者加载更多的结果，null-未知，true-刷新结果，false-加载更多结果 */
+    /** true-刷新的结果，false-加载更多的结果 */
     val isRefreshResult: Boolean? = null,
 
-    /** 是否还有更多数据，null-未知 */
+    /** 是否还有更多数据 */
     val hasMore: Boolean? = null,
 
     /** 是否正在刷新 */
