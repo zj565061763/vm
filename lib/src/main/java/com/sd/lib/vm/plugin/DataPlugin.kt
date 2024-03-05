@@ -94,14 +94,6 @@ inline fun <T> DataState<T>.onFailure(action: DataState<T>.(exception: Throwable
     return this
 }
 
-/**
- * 加载中状态
- */
-inline fun <T> DataState<T>.onLoading(action: DataState<T>.() -> Unit): DataState<T> {
-    if (isLoading) action()
-    return this
-}
-
 //---------- impl ----------
 
 private class DataPluginImpl<T>(initial: T) : ViewModelPlugin(), DataPlugin<T> {
