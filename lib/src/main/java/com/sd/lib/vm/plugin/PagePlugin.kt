@@ -142,10 +142,10 @@ data class PageState<T>(
     val data: List<T> = emptyList(),
 
     /** 最后一次加载的页码 */
-    val loadPage: Int? = null,
+    val page: Int? = null,
 
     /** 最后一次加载的结果 */
-    val loadResult: Result<Unit>? = null,
+    val result: Result<Unit>? = null,
 
     /** true-刷新的结果，false-加载更多的结果 */
     val isRefreshResult: Boolean? = null,
@@ -161,19 +161,19 @@ data class PageState<T>(
 )
 
 /** 是否初始状态 */
-val PageState<*>.isInitial: Boolean get() = loadResult == null
+val PageState<*>.isInitial: Boolean get() = result == null
 
 /** 是否成功状态 */
-val PageState<*>.isSuccess: Boolean get() = loadResult?.isSuccess == true
+val PageState<*>.isSuccess: Boolean get() = result?.isSuccess == true
 
 /** 是否失败状态 */
-val PageState<*>.isFailure: Boolean get() = loadResult?.isFailure == true
+val PageState<*>.isFailure: Boolean get() = result?.isFailure == true
 
 /**
  * 初始状态
  */
 inline fun <T> PageState<T>.onInitial(action: PageState<T>.() -> Unit): PageState<T> {
-    if (loadResult == null) action()
+    if (result == null) action()
     return this
 }
 
@@ -181,7 +181,7 @@ inline fun <T> PageState<T>.onInitial(action: PageState<T>.() -> Unit): PageStat
  * 成功状态
  */
 inline fun <T> PageState<T>.onSuccess(action: PageState<T>.() -> Unit): PageState<T> {
-    loadResult?.onSuccess { action() }
+    result?.onSuccess { action() }
     return this
 }
 
@@ -189,7 +189,7 @@ inline fun <T> PageState<T>.onSuccess(action: PageState<T>.() -> Unit): PageStat
  * 失败状态
  */
 inline fun <T> PageState<T>.onFailure(action: PageState<T>.(exception: Throwable) -> Unit): PageState<T> {
-    loadResult?.onFailure { action(it) }
+    result?.onFailure { action(it) }
     return this
 }
 
@@ -334,8 +334,8 @@ private class PagePluginImpl<T>(
                 _state.update {
                     it.copy(
                         data = result.data ?: it.data,
-                        loadPage = page,
-                        loadResult = Result.success(Unit),
+                        page = page,
+                        result = Result.success(Unit),
                         isRefreshResult = isRefresh,
                         hasMore = result.hasMore,
                     )
@@ -346,7 +346,7 @@ private class PagePluginImpl<T>(
                 _state.update {
                     it.copy(
                         data = result.data ?: it.data,
-                        loadResult = Result.failure(result.exception),
+                        result = Result.failure(result.exception),
                         isRefreshResult = isRefresh,
                     )
                 }
