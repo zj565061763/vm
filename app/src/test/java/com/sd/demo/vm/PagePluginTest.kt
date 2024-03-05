@@ -9,7 +9,6 @@ import com.sd.lib.vm.plugin.PagePlugin
 import com.sd.lib.vm.plugin.PageState
 import com.sd.lib.vm.plugin.isInitial
 import com.sd.lib.vm.plugin.isSuccess
-import com.sd.lib.vm.plugin.pageLoadSuccess
 import io.mockk.every
 import io.mockk.mockkClass
 import io.mockk.mockkStatic
@@ -376,7 +375,7 @@ private class PagePluginViewModel : PluginViewModel<Unit>() {
             _list.addAll(list)
         }
 
-        return pageLoadSuccess(
+        return PagePlugin.resultSuccess(
             data = _list.toList(),
             pageSize = list.size,
             hasMore = true,
