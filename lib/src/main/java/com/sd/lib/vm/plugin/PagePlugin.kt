@@ -66,19 +66,14 @@ interface PagePlugin<T> : StatePlugin<StateFlow<PageState<T>>> {
             /** 本页实际加载到的数据个数 */
             val pageSize: Int,
 
-            /** 是否还有更多数据 */
-            val hasMore: Boolean,
+            /** 是否还有更多数据，null-未知 */
+            val hasMore: Boolean?,
         ) : LoadResult<T>
 
         data class Failure<T>(
             /** 异常信息 */
             val exception: Throwable,
 
-            /** 总数据，null-数据不变 */
-            val data: List<T>? = null,
-        ) : LoadResult<T>
-
-        data class None<T>(
             /** 总数据，null-数据不变 */
             val data: List<T>? = null,
         ) : LoadResult<T>
@@ -95,7 +90,7 @@ interface PagePlugin<T> : StatePlugin<StateFlow<PageState<T>>> {
         fun <T> resultSuccess(
             data: List<T>?,
             pageSize: Int,
-            hasMore: Boolean,
+            hasMore: Boolean?,
         ): LoadResult<T> {
             return LoadResult.Success(
                 data = data,
@@ -351,12 +346,6 @@ private class PagePluginImpl<T>(
                         data = result.data ?: it.data,
                         loadResult = Result.failure(result.exception),
                     )
-                }
-            }
-
-            is PagePlugin.LoadResult.None<T> -> {
-                _state.update {
-                    it.copy(data = result.data ?: it.data)
                 }
             }
         }
