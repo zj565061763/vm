@@ -39,8 +39,8 @@ androidx-test-ext-junit = "androidx.test.ext:junit:1.1.5"
 androidx-test-espresso-core = "androidx.test.espresso:espresso-core:3.5.1"
 kotlinx-coroutines-test = "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.0"
 
-mockk-android = "io.mockk:mockk-android:1.13.9"
-mockk-agent = "io.mockk:mockk-agent:1.13.9"
+mockk-android = "io.mockk:mockk-android:1.13.10"
+mockk-agent = "io.mockk:mockk-agent:1.13.10"
 
 [plugins]
 
