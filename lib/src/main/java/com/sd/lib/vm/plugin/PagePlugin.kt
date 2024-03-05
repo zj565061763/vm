@@ -76,6 +76,11 @@ interface PagePlugin<T> : StatePlugin<StateFlow<PageState<T>>> {
             /** 总数据，null-数据不变 */
             val data: List<T>? = null,
         ) : LoadResult<T>
+
+        data class None<T>(
+            /** 总数据，null-数据不变 */
+            val data: List<T>? = null,
+        ) : LoadResult<T>
     }
 
     companion object {
@@ -112,6 +117,17 @@ interface PagePlugin<T> : StatePlugin<StateFlow<PageState<T>>> {
                 exception = exception,
                 data = data,
             )
+        }
+
+        /**
+         * 无结果
+         *
+         * @param data 总数据，null-数据不变
+         */
+        fun <T> resultNone(
+            data: List<T>? = null,
+        ): LoadResult<T> {
+            return LoadResult.None(data = data)
         }
     }
 }
@@ -349,6 +365,12 @@ private class PagePluginImpl<T>(
                         result = Result.failure(result.exception),
                         isRefreshResult = isRefresh,
                     )
+                }
+            }
+
+            is PagePlugin.LoadResult.None<T> -> {
+                _state.update {
+                    it.copy(data = result.data ?: it.data)
                 }
             }
         }
