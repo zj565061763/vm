@@ -27,11 +27,6 @@ interface PagePlugin<T> : StatePlugin<StateFlow<PageState<T>>> {
     )
 
     /**
-     * 取消刷新
-     */
-    fun cancelRefresh()
-
-    /**
      * 加载更多
      *
      * @param notifyLoading 是否通知[PageState.isLoadingMore]
@@ -43,6 +38,11 @@ interface PagePlugin<T> : StatePlugin<StateFlow<PageState<T>>> {
         ignoreActive: Boolean = false,
         canLoad: (suspend LoadScope<T>.(page: Int) -> Boolean)? = null,
     )
+
+    /**
+     * 取消刷新
+     */
+    fun cancelRefresh()
 
     /**
      * 取消加载更多
