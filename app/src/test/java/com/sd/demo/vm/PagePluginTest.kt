@@ -55,6 +55,7 @@ class PagePluginTest {
                 assertEquals(null, state.loadPage)
                 assertEquals(true, state.isInitial)
                 assertEquals(null, state.hasMore)
+                assertEquals(null, state.isRefreshResult)
                 assertEquals(false, state.isRefreshing)
                 assertEquals(false, state.isLoadingMore)
             }
@@ -64,6 +65,7 @@ class PagePluginTest {
                 assertEquals(null, state.loadPage)
                 assertEquals(true, state.isInitial)
                 assertEquals(null, state.hasMore)
+                assertEquals(null, state.isRefreshResult)
                 assertEquals(true, state.isRefreshing)
                 assertEquals(false, state.isLoadingMore)
             }
@@ -73,6 +75,7 @@ class PagePluginTest {
                 assertEquals(1, state.loadPage)
                 assertEquals(true, state.isSuccess)
                 assertEquals(true, state.hasMore)
+                assertEquals(true, state.isRefreshResult)
                 assertEquals(true, state.isRefreshing)
                 assertEquals(false, state.isLoadingMore)
             }
@@ -82,6 +85,7 @@ class PagePluginTest {
                 assertEquals(1, state.loadPage)
                 assertEquals(true, state.isSuccess)
                 assertEquals(true, state.hasMore)
+                assertEquals(true, state.isRefreshResult)
                 assertEquals(false, state.isRefreshing)
                 assertEquals(false, state.isLoadingMore)
             }
@@ -99,6 +103,7 @@ class PagePluginTest {
                 assertEquals(emptyList<Int>(), state.data)
                 assertEquals(null, state.loadPage)
                 assertEquals(true, state.isInitial)
+                assertEquals(null, state.isRefreshResult)
                 assertEquals(null, state.hasMore)
                 assertEquals(false, state.isRefreshing)
                 assertEquals(false, state.isLoadingMore)
@@ -108,6 +113,7 @@ class PagePluginTest {
                 assertEquals(PagePluginViewModel.pageList(), state.data)
                 assertEquals(1, state.loadPage)
                 assertEquals(true, state.isSuccess)
+                assertEquals(true, state.isRefreshResult)
                 assertEquals(true, state.hasMore)
                 assertEquals(false, state.isRefreshing)
                 assertEquals(false, state.isLoadingMore)
@@ -126,6 +132,7 @@ class PagePluginTest {
                 assertEquals(emptyList<Int>(), state.data)
                 assertEquals(null, state.loadPage)
                 assertEquals(true, state.isInitial)
+                assertEquals(null, state.isRefreshResult)
                 assertEquals(null, state.hasMore)
                 assertEquals(false, state.isRefreshing)
                 assertEquals(false, state.isLoadingMore)
@@ -144,6 +151,7 @@ class PagePluginTest {
                 assertEquals(emptyList<Int>(), state.data)
                 assertEquals(null, state.loadPage)
                 assertEquals(true, state.isInitial)
+                assertEquals(null, state.isRefreshResult)
                 assertEquals(null, state.hasMore)
                 assertEquals(false, state.isRefreshing)
                 assertEquals(false, state.isLoadingMore)
@@ -153,6 +161,7 @@ class PagePluginTest {
                 assertEquals(emptyList<Int>(), state.data)
                 assertEquals(null, state.loadPage)
                 assertEquals(true, state.isInitial)
+                assertEquals(null, state.isRefreshResult)
                 assertEquals(null, state.hasMore)
                 assertEquals(true, state.isRefreshing)
                 assertEquals(false, state.isLoadingMore)
@@ -163,6 +172,7 @@ class PagePluginTest {
                 assertEquals(1, state.loadPage)
                 assertEquals(true, state.isSuccess)
                 assertEquals(true, state.hasMore)
+                assertEquals(true, state.isRefreshResult)
                 assertEquals(true, state.isRefreshing)
                 assertEquals(false, state.isLoadingMore)
             }
@@ -172,12 +182,12 @@ class PagePluginTest {
                 assertEquals(1, state.loadPage)
                 assertEquals(true, state.isSuccess)
                 assertEquals(true, state.hasMore)
+                assertEquals(true, state.isRefreshResult)
                 assertEquals(false, state.isRefreshing)
                 assertEquals(false, state.isLoadingMore)
             }
         }
     }
-
 
     @Test
     fun `test load more`() = runTest {

@@ -141,13 +141,16 @@ data class PageState<T>(
     /** 总数据 */
     val data: List<T> = emptyList(),
 
-    /** 最后一次加载的页码 */
+    /** 最后一次加载的页码，null-未知 */
     val loadPage: Int? = null,
 
-    /** 最后一次加载的结果，true-刷新结果，false-加载更多结果 */
-    val loadResult: Result<Boolean>? = null,
+    /** 最后一次加载的结果，null-未知 */
+    val loadResult: Result<Unit>? = null,
 
-    /** 是否还有更多数据 */
+    /** 刷新或者加载更多的结果，null-未知，true-刷新结果，false-加载更多结果 */
+    val isRefreshResult: Boolean? = null,
+
+    /** 是否还有更多数据，null-未知 */
     val hasMore: Boolean? = null,
 
     /** 是否正在刷新 */
@@ -177,8 +180,8 @@ inline fun <T> PageState<T>.onInitial(action: PageState<T>.() -> Unit): PageStat
 /**
  * 成功状态
  */
-inline fun <T> PageState<T>.onSuccess(action: PageState<T>.(Boolean) -> Unit): PageState<T> {
-    loadResult?.onSuccess { action(it) }
+inline fun <T> PageState<T>.onSuccess(action: PageState<T>.() -> Unit): PageState<T> {
+    loadResult?.onSuccess { action() }
     return this
 }
 
@@ -193,9 +196,9 @@ inline fun <T> PageState<T>.onFailure(action: PageState<T>.(exception: Throwable
 /**
  * 加载成功，并且总数据为空
  */
-inline fun <T> PageState<T>.onViewSuccessEmpty(action: PageState<T>.(Boolean) -> Unit): PageState<T> {
+inline fun <T> PageState<T>.onViewSuccessEmpty(action: PageState<T>.() -> Unit): PageState<T> {
     onSuccess {
-        if (data.isEmpty()) action(it)
+        if (data.isEmpty()) action()
     }
     return this
 }
@@ -332,7 +335,8 @@ private class PagePluginImpl<T>(
                     it.copy(
                         data = result.data ?: it.data,
                         loadPage = page,
-                        loadResult = Result.success(isRefresh),
+                        loadResult = Result.success(Unit),
+                        isRefreshResult = isRefresh,
                         hasMore = result.hasMore,
                     )
                 }
@@ -343,6 +347,7 @@ private class PagePluginImpl<T>(
                     it.copy(
                         data = result.data ?: it.data,
                         loadResult = Result.failure(result.exception),
+                        isRefreshResult = isRefresh,
                     )
                 }
             }
