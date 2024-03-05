@@ -49,6 +49,11 @@ interface PagePlugin<T> : StatePlugin<StateFlow<PageState<T>>> {
      */
     fun cancelLoadMore()
 
+    /**
+     * 清空数据
+     */
+    fun clearData()
+
     interface LoadScope<T> {
         /** 当前数据状态 */
         val currentState: PageState<T>
@@ -305,6 +310,12 @@ private class PagePluginImpl<T>(
 
     override fun cancelLoadMore() {
         _loadMorePlugin.cancelLoad()
+    }
+
+    override fun clearData() {
+        _state.update {
+            it.copy(data = emptyList())
+        }
     }
 
     private suspend fun canLoadData(
