@@ -23,7 +23,7 @@ interface PagePlugin<T> : StatePlugin<StateFlow<PageState<T>>> {
     fun refresh(
         notifyLoading: Boolean = true,
         ignoreActive: Boolean = false,
-        canLoad: (suspend LoadScope<T>.(page: Int) -> Boolean)? = null,
+        canLoad: suspend LoadScope<T>.(page: Int) -> Boolean = { true },
     )
 
     /**
@@ -36,7 +36,7 @@ interface PagePlugin<T> : StatePlugin<StateFlow<PageState<T>>> {
     fun loadMore(
         notifyLoading: Boolean = true,
         ignoreActive: Boolean = false,
-        canLoad: (suspend LoadScope<T>.(page: Int) -> Boolean)? = null,
+        canLoad: suspend LoadScope<T>.(page: Int) -> Boolean = { true },
     )
 
     /**
@@ -121,25 +121,16 @@ interface PagePlugin<T> : StatePlugin<StateFlow<PageState<T>>> {
  *
  * @param initial 初始值
  * @param refreshPage 刷新数据的页码，例如数据源规定页码从1开始，那么此参数就为1
- * @param canLoad 是否可以加载
  * @param onLoad 加载回调
  */
 fun <T> PagePlugin(
     initial: List<T> = emptyList(),
     refreshPage: Int = 1,
-    canLoad: suspend PagePlugin.LoadScope<T>.(page: Int) -> Boolean = {
-        if (isRefresh) {
-            true
-        } else {
-            currentState.run { !isRefreshing && !isLoadingMore }
-        }
-    },
     onLoad: suspend PagePlugin.LoadScope<T>.(page: Int) -> PagePlugin.LoadResult<T>,
 ): PagePlugin<T> {
     return PagePluginImpl(
         initial = initial,
         refreshPage = refreshPage,
-        canLoad = canLoad,
         onLoad = onLoad,
     )
 }
@@ -224,7 +215,6 @@ inline fun <T> PageState<T>.onViewFailureEmpty(action: PageState<T>.(exception: 
 private class PagePluginImpl<T>(
     initial: List<T>,
     private val refreshPage: Int,
-    private val canLoad: suspend PagePlugin.LoadScope<T>.(page: Int) -> Boolean,
     private val onLoad: suspend PagePlugin.LoadScope<T>.(page: Int) -> PagePlugin.LoadResult<T>,
 ) : ViewModelPlugin(), PagePlugin<T> {
 
@@ -243,7 +233,7 @@ private class PagePluginImpl<T>(
     override fun refresh(
         notifyLoading: Boolean,
         ignoreActive: Boolean,
-        canLoad: (suspend PagePlugin.LoadScope<T>.(page: Int) -> Boolean)?,
+        canLoad: suspend PagePlugin.LoadScope<T>.(page: Int) -> Boolean,
     ) {
         _refreshPlugin.load(
             notifyLoading = notifyLoading,
@@ -261,18 +251,15 @@ private class PagePluginImpl<T>(
             loadData(
                 page = refreshPage,
                 isRefresh = true,
+                onLoad = onLoad,
             )
         }
-    }
-
-    override fun cancelRefresh() {
-        _refreshPlugin.cancelLoad()
     }
 
     override fun loadMore(
         notifyLoading: Boolean,
         ignoreActive: Boolean,
-        canLoad: (suspend PagePlugin.LoadScope<T>.(page: Int) -> Boolean)?,
+        canLoad: suspend PagePlugin.LoadScope<T>.(page: Int) -> Boolean,
     ) {
         _loadMorePlugin.load(
             notifyLoading = notifyLoading,
@@ -288,8 +275,13 @@ private class PagePluginImpl<T>(
             loadData(
                 page = loadMorePage,
                 isRefresh = false,
+                onLoad = onLoad,
             )
         }
+    }
+
+    override fun cancelRefresh() {
+        _refreshPlugin.cancelLoad()
     }
 
     override fun cancelLoadMore() {
@@ -299,25 +291,32 @@ private class PagePluginImpl<T>(
     private suspend fun canLoadData(
         page: Int,
         isRefresh: Boolean,
-        canLoad: (suspend PagePlugin.LoadScope<T>.(page: Int) -> Boolean)?,
+        canLoad: suspend PagePlugin.LoadScope<T>.(page: Int) -> Boolean,
     ): Boolean {
-        val canLoadBlock = canLoad ?: this@PagePluginImpl.canLoad
-        return with(newLoadScope(isRefresh)) { canLoadBlock(page) }
+        if (!isRefresh) {
+            val isLoading = state.value.run { isRefreshing || isLoadingMore }
+            if (isLoading) return false
+        }
+        return with(newLoadScope(isRefresh)) { canLoad(page) }
     }
 
-    private suspend fun loadData(page: Int, isRefresh: Boolean) {
+    private suspend fun loadData(
+        page: Int,
+        isRefresh: Boolean,
+        onLoad: suspend PagePlugin.LoadScope<T>.(page: Int) -> PagePlugin.LoadResult<T>,
+    ) {
         val result = with(newLoadScope(isRefresh)) { onLoad(page) }
         handleLoadResult(
-            result = result,
             page = page,
             isRefresh = isRefresh,
+            result = result,
         )
     }
 
     private fun handleLoadResult(
-        result: PagePlugin.LoadResult<T>,
         page: Int,
         isRefresh: Boolean,
+        result: PagePlugin.LoadResult<T>,
     ) {
         when (result) {
             is PagePlugin.LoadResult.Success<T> -> {
