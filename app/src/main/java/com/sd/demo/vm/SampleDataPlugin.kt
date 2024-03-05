@@ -26,6 +26,7 @@ import com.sd.lib.vm.PluginViewModel
 import com.sd.lib.vm.plugin.DataPlugin
 import com.sd.lib.vm.plugin.onFailure
 import com.sd.lib.vm.plugin.onInitial
+import com.sd.lib.vm.plugin.onLoading
 import com.sd.lib.vm.plugin.onSuccess
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
@@ -76,25 +77,24 @@ private fun Content(
         // 显示加载数据
         Text(text = state.data.name)
 
-        if (state.isLoading) {
+        state.onInitial {
+            Text(text = "Initial")
+        }
+        state.onSuccess {
+            Text(text = "Success")
+        }
+        state.onFailure {
+            Text(
+                text = "Failure:$it",
+                color = MaterialTheme.colorScheme.error,
+            )
+        }
+        state.onLoading {
             CircularProgressIndicator(
-                modifier = Modifier.size(10.dp),
+                modifier = Modifier.size(12.dp),
                 color = LocalContentColor.current,
                 strokeWidth = 1.dp,
             )
-        } else {
-            state.onInitial {
-                Text(text = "Initial")
-            }
-            state.onSuccess {
-                Text(text = "Success")
-            }
-            state.onFailure {
-                Text(
-                    text = "Failure:$it",
-                    color = MaterialTheme.colorScheme.error,
-                )
-            }
         }
     }
 }
