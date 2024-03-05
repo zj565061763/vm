@@ -13,13 +13,12 @@ import kotlinx.coroutines.launch
  * 分页管理
  */
 interface PagePlugin<T> : StatePlugin<StateFlow<PageState<T>>> {
-
     /**
-     * 刷新数据
+     * 刷新
      *
      * @param notifyLoading 是否通知[PageState.isRefreshing]
      * @param ignoreActive 是否忽略激活状态[FViewModel.isVMActive]
-     * @param canLoad 是否可以加载数据
+     * @param canLoad 是否可以加载
      */
     fun refresh(
         notifyLoading: Boolean = true,
@@ -28,16 +27,16 @@ interface PagePlugin<T> : StatePlugin<StateFlow<PageState<T>>> {
     )
 
     /**
-     * 取消刷新数据
+     * 取消刷新
      */
     fun cancelRefresh()
 
     /**
-     * 加载更多数据
+     * 加载更多
      *
      * @param notifyLoading 是否通知[PageState.isLoadingMore]
      * @param ignoreActive 是否忽略激活状态[FViewModel.isVMActive]
-     * @param canLoad 是否可以加载数据
+     * @param canLoad 是否可以加载
      */
     fun loadMore(
         notifyLoading: Boolean = true,
@@ -122,8 +121,8 @@ interface PagePlugin<T> : StatePlugin<StateFlow<PageState<T>>> {
  *
  * @param initial 初始值
  * @param refreshPage 刷新数据的页码，例如数据源规定页码从1开始，那么此参数就为1
- * @param canLoad 是否可以加载数据
- * @param onLoad 数据加载回调
+ * @param canLoad 是否可以加载
+ * @param onLoad 加载回调
  */
 fun <T> PagePlugin(
     initial: List<T> = emptyList(),
