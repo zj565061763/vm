@@ -12,6 +12,7 @@ import com.sd.lib.vm.plugin.isSuccess
 import io.mockk.every
 import io.mockk.mockkClass
 import io.mockk.mockkStatic
+import io.mockk.unmockkAll
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
@@ -42,6 +43,7 @@ class DataPluginTest {
     @After
     fun tearDown() {
         Dispatchers.resetMain()
+        unmockkAll()
     }
 
     @Test
