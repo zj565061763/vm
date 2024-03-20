@@ -1,11 +1,13 @@
 package com.sd.lib.vm.plugin
 
-import com.sd.lib.coroutine.FMutator
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.util.Collections
 
 /**
  * 加载数据
@@ -49,9 +51,10 @@ data class LoadState(
 //---------- impl ----------
 
 private class LoadPluginImpl : RealVMPlugin(), LoadPlugin {
-
-    /** 互斥修改器 */
-    private val _mutator = FMutator()
+    /** 所有任务 */
+    private val _jobs: MutableSet<Job> = Collections.synchronizedSet(hashSetOf())
+    /** 加载中的任务 */
+    private var _loadingJob: Job? = null
 
     private val _state = MutableStateFlow(LoadState())
     override val state: StateFlow<LoadState> = _state.asStateFlow()
@@ -69,11 +72,20 @@ private class LoadPluginImpl : RealVMPlugin(), LoadPlugin {
                 canLoad = canLoad,
                 onLoad = onLoad,
             )
+        }.let { job ->
+            _jobs.add(job)
+            job.invokeOnCompletion { _jobs.remove(job) }
         }
     }
 
     override fun cancelLoad() {
-        _mutator.cancel()
+        _loadingJob?.cancel()
+        while (_jobs.isNotEmpty()) {
+            _jobs.toTypedArray().forEach { job ->
+                _jobs.remove(job)
+                job.cancel()
+            }
+        }
     }
 
     private suspend fun loadInternal(
@@ -84,18 +96,19 @@ private class LoadPluginImpl : RealVMPlugin(), LoadPlugin {
     ) {
         if (isVMDestroyed) return
         if (isVMActive || ignoreActive) {
-            if (canLoad()) {
-                try {
-                    _mutator.mutate {
-                        if (notifyLoading) {
-                            _state.update { it.copy(isLoading = true) }
-                        }
-                        onLoad()
-                    }
-                } finally {
-                    if (notifyLoading) {
-                        _state.update { it.copy(isLoading = false) }
-                    }
+            if (!canLoad()) return
+
+            _loadingJob?.cancel()
+            _loadingJob = currentCoroutineContext()[Job]
+
+            try {
+                if (notifyLoading) {
+                    _state.update { it.copy(isLoading = true) }
+                }
+                onLoad()
+            } finally {
+                if (notifyLoading) {
+                    _state.update { it.copy(isLoading = false) }
                 }
             }
         }
