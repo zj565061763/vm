@@ -53,6 +53,9 @@ class ViewModelTest {
         assertEquals(true, vm.isVMActive)
         advanceUntilIdle()
         assertEquals("onActive()", vm.callbackString)
+
+        vm.clearViewModel()
+        assertEquals(false, vm.isVMActive)
     }
 
     @Test
