@@ -396,8 +396,8 @@ private class PagePluginImpl<T>(
 
     override fun onInit() {
         super.onInit()
-        _refreshPlugin.register()
-        _loadMorePlugin.register()
+        registerPlugin(_refreshPlugin)
+        registerPlugin(_loadMorePlugin)
 
         viewModelScope.launch {
             _refreshPlugin.state

@@ -147,7 +147,7 @@ private class DataPluginImpl<T>(initial: T) : ViewModelPlugin(), DataPlugin<T> {
 
     override fun onInit() {
         super.onInit()
-        _loadPlugin.register()
+        registerPlugin(_loadPlugin)
 
         viewModelScope.launch {
             _loadPlugin.state

@@ -2,28 +2,41 @@ package com.sd.lib.vm.plugin
 
 import android.os.Looper
 import androidx.annotation.MainThread
-import androidx.lifecycle.viewModelScope
 import com.sd.lib.vm.PluginViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
 
-abstract class ViewModelPlugin : PluginViewModel.Plugin {
-    private var _vm: PluginViewModel<*>? = null
+interface ViewModelPluginSupport {
+    val viewModelScope: CoroutineScope
+    val isDestroyed: Boolean
+    val isVMActive: Boolean
+    val isActiveFlow: Flow<Boolean>
+    fun registerPlugin(plugin: PluginViewModel.Plugin)
+}
 
-    protected val vm get() = checkNotNull(_vm) { "Plugin has not been initialized." }
+abstract class ViewModelPlugin : PluginViewModel.Plugin, ViewModelPluginSupport {
+    private var _support: ViewModelPluginSupport? = null
+    private val support get() = checkNotNull(_support) { "Plugin has not been initialized." }
 
-    protected val viewModelScope get() = vm.viewModelScope
-    protected val isDestroyed get() = vm.isDestroyed
-    protected val isVMActive get() = vm.isVMActive
-    protected val isActiveFlow get() = vm.isActiveFlow
-    protected val singleDispatcher get() = vm.singleDispatcher
+    override val viewModelScope get() = support.viewModelScope
+    override val isDestroyed get() = support.isDestroyed
+    override val isVMActive get() = support.isVMActive
+    override val isActiveFlow get() = support.isActiveFlow
+
+    @MainThread
+    override fun registerPlugin(plugin: PluginViewModel.Plugin) {
+        require(plugin !== this@ViewModelPlugin)
+        support.registerPlugin(plugin)
+    }
 
     /**
      * 通知初始化
      */
     @MainThread
-    internal fun notifyInit(viewModel: PluginViewModel<*>) {
+    internal fun notifyInit(support: ViewModelPluginSupport) {
         checkMainThread()
-        if (_vm != null) error("Plugin has been initialized.")
-        _vm = viewModel
+        if (_support != null) error("Plugin has been initialized.")
+        _support = support
         onInit()
     }
 
@@ -34,15 +47,6 @@ abstract class ViewModelPlugin : PluginViewModel.Plugin {
     internal fun notifyDestroy() {
         checkMainThread()
         onDestroy()
-    }
-
-    /**
-     * 注册插件
-     */
-    @MainThread
-    protected fun <T : PluginViewModel.Plugin> T.register() {
-        if (this === this@ViewModelPlugin) error("Can not register self.")
-        vm.registerPlugin(this)
     }
 
     /**

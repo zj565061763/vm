@@ -2,7 +2,11 @@ package com.sd.lib.vm
 
 import androidx.annotation.CallSuper
 import androidx.annotation.MainThread
+import androidx.lifecycle.viewModelScope
 import com.sd.lib.vm.plugin.ViewModelPlugin
+import com.sd.lib.vm.plugin.ViewModelPluginSupport
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
 
 open class PluginViewModel<I> : FViewModel<I>() {
 
@@ -19,9 +23,9 @@ open class PluginViewModel<I> : FViewModel<I>() {
     @MainThread
     internal fun registerPlugin(plugin: Plugin) {
         if (isDestroyed) return
-        check(plugin is ViewModelPlugin)
+        require(plugin is ViewModelPlugin) { "plugin should be ${ViewModelPlugin::class.java.name}" }
         if (_plugins.add(plugin)) {
-            plugin.notifyInit(this@PluginViewModel)
+            plugin.notifyInit(_pluginSupport)
         }
     }
 
@@ -37,6 +41,14 @@ open class PluginViewModel<I> : FViewModel<I>() {
     override fun onDestroy() {
         super.onDestroy()
         destroyPlugins()
+    }
+
+    private val _pluginSupport = object : ViewModelPluginSupport {
+        override val viewModelScope: CoroutineScope get() = this@PluginViewModel.viewModelScope
+        override val isDestroyed: Boolean get() = this@PluginViewModel.isDestroyed
+        override val isVMActive: Boolean get() = this@PluginViewModel.isVMActive
+        override val isActiveFlow: Flow<Boolean> get() = this@PluginViewModel.isActiveFlow
+        override fun registerPlugin(plugin: Plugin) = this@PluginViewModel.registerPlugin(plugin)
     }
 
     interface Plugin
