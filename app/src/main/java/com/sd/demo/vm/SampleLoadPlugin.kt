@@ -93,12 +93,12 @@ class MyLoadViewModel : PluginViewModel<Unit>() {
             try {
                 // 模拟加载数据
                 delay(2_000)
-                _state.update { it.copy(content = uuid) }
             } catch (e: CancellationException) {
                 logMsg { "load cancel $uuid" }
                 throw e
             }
 
+            _state.update { it.copy(content = uuid) }
             logMsg { "load success $uuid" }
         }
     }
