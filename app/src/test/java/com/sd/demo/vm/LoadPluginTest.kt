@@ -1,11 +1,11 @@
 package com.sd.demo.vm
 
 import android.os.Looper
+import androidx.lifecycle.viewModelScope
 import app.cash.turbine.TurbineTestContext
 import app.cash.turbine.test
 import com.sd.lib.vm.PluginViewModel
 import com.sd.lib.vm.plugin.LoadPlugin
-import com.sd.lib.vm.plugin.LoadState
 import io.mockk.every
 import io.mockk.mockkClass
 import io.mockk.mockkStatic
@@ -13,6 +13,10 @@ import io.mockk.unmockkAll
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -23,7 +27,6 @@ import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
-import kotlin.time.Duration.Companion.seconds
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class LoadPluginTest {
@@ -49,20 +52,26 @@ class LoadPluginTest {
             initialActive = true,
             notifyLoading = true,
             ignoreActive = false
-        ) { vm ->
+        ) {
             awaitItem().let { state ->
                 assertEquals(false, state.isLoading)
+                assertEquals(0, state.count)
             }
 
             awaitItem().let { state ->
                 assertEquals(true, state.isLoading)
+                assertEquals(0, state.count)
+            }
+
+            awaitItem().let { state ->
+                assertEquals(true, state.isLoading)
+                assertEquals(1, state.count)
             }
 
             awaitItem().let { state ->
                 assertEquals(false, state.isLoading)
+                assertEquals(1, state.count)
             }
-
-            assertEquals(1, vm.count)
         }
     }
 
@@ -72,12 +81,16 @@ class LoadPluginTest {
             initialActive = true,
             notifyLoading = false,
             ignoreActive = false
-        ) { vm ->
+        ) {
             awaitItem().let { state ->
                 assertEquals(false, state.isLoading)
+                assertEquals(0, state.count)
             }
 
-            assertEquals(1, vm.count)
+            awaitItem().let { state ->
+                assertEquals(false, state.isLoading)
+                assertEquals(1, state.count)
+            }
         }
     }
 
@@ -87,12 +100,11 @@ class LoadPluginTest {
             initialActive = false,
             notifyLoading = true,
             ignoreActive = false
-        ) { vm ->
+        ) {
             awaitItem().let { state ->
                 assertEquals(false, state.isLoading)
+                assertEquals(0, state.count)
             }
-
-            assertEquals(0, vm.count)
         }
     }
 
@@ -102,20 +114,26 @@ class LoadPluginTest {
             initialActive = false,
             notifyLoading = true,
             ignoreActive = true
-        ) { vm ->
+        ) {
             awaitItem().let { state ->
                 assertEquals(false, state.isLoading)
+                assertEquals(0, state.count)
             }
 
             awaitItem().let { state ->
                 assertEquals(true, state.isLoading)
+                assertEquals(0, state.count)
+            }
+
+            awaitItem().let { state ->
+                assertEquals(true, state.isLoading)
+                assertEquals(1, state.count)
             }
 
             awaitItem().let { state ->
                 assertEquals(false, state.isLoading)
+                assertEquals(1, state.count)
             }
-
-            assertEquals(1, vm.count)
         }
     }
 }
@@ -125,7 +143,7 @@ private suspend fun TestScope.testLoad(
     initialActive: Boolean,
     notifyLoading: Boolean,
     ignoreActive: Boolean,
-    validate: suspend TurbineTestContext<LoadState>.(LoadPluginViewModel) -> Unit,
+    validate: suspend TurbineTestContext<LoadPluginViewModel.State>.() -> Unit,
 ) {
     val vm = LoadPluginViewModel().apply { setActive(initialActive) }
     assertEquals(initialActive, vm.isVMActive)
@@ -136,15 +154,15 @@ private suspend fun TestScope.testLoad(
             ignoreActive = ignoreActive,
         )
         advanceUntilIdle()
-        validate(vm)
+        validate()
     }
 }
 
 private class LoadPluginViewModel : PluginViewModel<Unit>() {
     private val _plugin = LoadPlugin().register()
 
-    var count = 0
-    val state = _plugin.state
+    private val _state = MutableStateFlow(State())
+    val state = _state.asStateFlow()
 
     fun load(
         notifyLoading: Boolean,
@@ -154,8 +172,25 @@ private class LoadPluginViewModel : PluginViewModel<Unit>() {
             notifyLoading = notifyLoading,
             ignoreActive = ignoreActive,
         ) {
-            delay(1.seconds)
-            count++
+            delay(1_000)
+            _state.update {
+                it.copy(count = it.count + 1)
+            }
         }
     }
+
+    init {
+        viewModelScope.launch {
+            _plugin.isLoading.collect { isLoading ->
+                _state.update {
+                    it.copy(isLoading = isLoading)
+                }
+            }
+        }
+    }
+
+    data class State(
+        val count: Int = 0,
+        val isLoading: Boolean = false
+    )
 }
