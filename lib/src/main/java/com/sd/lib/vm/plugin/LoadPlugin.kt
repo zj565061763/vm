@@ -38,9 +38,7 @@ interface LoadPlugin : StateVMPlugin<StateFlow<LoadState>> {
 /**
  * [LoadPlugin]
  */
-fun LoadPlugin(): LoadPlugin {
-    return LoadPluginImpl()
-}
+fun LoadPlugin(): LoadPlugin = LoadPluginImpl()
 
 //---------- state ----------
 
