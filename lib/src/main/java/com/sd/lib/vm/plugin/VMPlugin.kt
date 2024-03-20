@@ -49,7 +49,6 @@ abstract class RealVMPlugin : VMPlugin {
     /**
      * 通知初始化
      */
-    @MainThread
     internal fun notifyInit(support: VMPlugin.Support) {
         checkMainThread()
         if (_support != null) error("Plugin has been initialized.")
@@ -60,22 +59,19 @@ abstract class RealVMPlugin : VMPlugin {
     /**
      * 通知销毁
      */
-    @MainThread
     internal fun notifyDestroy() {
         checkMainThread()
         onDestroy()
     }
 
     /**
-     * 初始化
+     * 初始化(MainThread)
      */
-    @MainThread
     protected open fun onInit() = Unit
 
     /**
-     * 销毁
+     * 销毁(MainThread)
      */
-    @MainThread
     protected open fun onDestroy() = Unit
 
     //-------------------- Support --------------------
