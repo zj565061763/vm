@@ -32,7 +32,6 @@ kotlin {
 
 dependencies {
     api(libs.androidx.lifecycle.viewmodel)
-    api(libs.sd.coroutine)
 }
 
 publishing {

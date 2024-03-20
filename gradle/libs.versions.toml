@@ -29,7 +29,6 @@ androidx-lifecycle-viewmodelCompose = { module = "androidx.lifecycle:lifecycle-v
 androidx-lifecycle-runtimeCompose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycle" }
 
 cash-turbine = "app.cash.turbine:turbine:1.0.0"
-sd-coroutine = "com.github.zj565061763:coroutine:1.4.5"
 sd-compose-swiperefresh = "com.github.zj565061763:compose-swiperefresh:1.0.0-alpha17"
 
 junit = "junit:junit:4.13.2"
