@@ -96,7 +96,7 @@ inline fun <T> DataState<T>.onFailure(action: DataState<T>.(exception: Throwable
 
 //---------- impl ----------
 
-private class DataPluginImpl<T>(initial: T) : VMPlugin(), DataPlugin<T> {
+private class DataPluginImpl<T>(initial: T) : RealVMPlugin(), DataPlugin<T> {
 
     private val _loadPlugin = LoadPlugin()
 

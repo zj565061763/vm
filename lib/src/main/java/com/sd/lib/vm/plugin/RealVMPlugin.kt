@@ -2,11 +2,39 @@ package com.sd.lib.vm.plugin
 
 import android.os.Looper
 import androidx.annotation.MainThread
-import com.sd.lib.vm.PluginViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 
-abstract class VMPlugin : PluginViewModel.Plugin {
+class VMPluginManager(
+    private val support: RealVMPlugin.Support
+) {
+    private val _plugins: MutableSet<RealVMPlugin> = hashSetOf()
+
+    /**
+     * 注册插件
+     */
+    @MainThread
+    fun registerPlugin(plugin: VMPlugin) {
+        if (support.isVMDestroyed) return
+        require(plugin is RealVMPlugin) { "Require ${RealVMPlugin::class.java.simpleName}" }
+        if (_plugins.add(plugin)) {
+            plugin.notifyInit(support)
+        }
+    }
+
+    /**
+     * 销毁所有插件
+     */
+    @MainThread
+    fun destroyPlugins() {
+        _plugins.forEach { it.notifyDestroy() }
+        _plugins.clear()
+    }
+}
+
+interface VMPlugin
+
+abstract class RealVMPlugin : VMPlugin {
     private var _support: Support? = null
     private val support get() = checkNotNull(_support) { "Plugin has not been initialized." }
 
@@ -48,14 +76,14 @@ abstract class VMPlugin : PluginViewModel.Plugin {
     protected val isVMDestroyed get() = support.isVMDestroyed
     protected val isVMActive get() = support.isVMActive
     protected val isVMActiveFlow get() = support.isVMActiveFlow
-    protected fun registerPlugin(plugin: PluginViewModel.Plugin) = support.registerPlugin(plugin)
+    protected fun registerPlugin(plugin: VMPlugin) = support.registerPlugin(plugin)
 
     interface Support {
         val vmScope: CoroutineScope
         val isVMDestroyed: Boolean
         val isVMActive: Boolean
         val isVMActiveFlow: Flow<Boolean>
-        fun registerPlugin(plugin: PluginViewModel.Plugin)
+        fun registerPlugin(plugin: VMPlugin)
     }
 }
 

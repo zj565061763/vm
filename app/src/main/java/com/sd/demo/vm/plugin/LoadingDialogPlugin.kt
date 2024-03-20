@@ -1,7 +1,7 @@
 package com.sd.demo.vm.plugin
 
 import com.sd.lib.vm.plugin.StatePlugin
-import com.sd.lib.vm.plugin.VMPlugin
+import com.sd.lib.vm.plugin.RealVMPlugin
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -27,7 +27,7 @@ fun LoadingDialogPlugin(): LoadingDialogPlugin {
     return LoadingDialogPluginImpl()
 }
 
-private class LoadingDialogPluginImpl : VMPlugin(), LoadingDialogPlugin {
+private class LoadingDialogPluginImpl : RealVMPlugin(), LoadingDialogPlugin {
     private val _state = MutableStateFlow<LoadingDialogPlugin.State?>(null)
     override val state: StateFlow<LoadingDialogPlugin.State?> = _state.asStateFlow()
 

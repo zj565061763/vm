@@ -2,7 +2,7 @@ package com.sd.demo.vm
 
 import android.os.Looper
 import com.sd.lib.vm.PluginViewModel
-import com.sd.lib.vm.plugin.VMPlugin
+import com.sd.lib.vm.plugin.RealVMPlugin
 import io.mockk.every
 import io.mockk.mockkClass
 import io.mockk.mockkStatic
@@ -49,7 +49,7 @@ private class CustomPluginViewModel : PluginViewModel<Unit>() {
     val customPlugin = CustomPlugin().register()
 }
 
-private class CustomPlugin : VMPlugin() {
+private class CustomPlugin : RealVMPlugin() {
     var count = 0
         private set
 

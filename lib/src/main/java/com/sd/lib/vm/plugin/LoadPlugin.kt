@@ -49,7 +49,7 @@ data class LoadState(
 
 //---------- impl ----------
 
-private class LoadPluginImpl : VMPlugin(), LoadPlugin {
+private class LoadPluginImpl : RealVMPlugin(), LoadPlugin {
 
     /** 互斥修改器 */
     private val _mutator = FMutator()

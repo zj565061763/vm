@@ -1,7 +1,7 @@
 package com.sd.demo.vm.plugin
 
 import com.sd.lib.vm.plugin.StatePlugin
-import com.sd.lib.vm.plugin.VMPlugin
+import com.sd.lib.vm.plugin.RealVMPlugin
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -19,7 +19,7 @@ fun ToastPlugin(): ToastPlugin {
     return ToastPluginImpl()
 }
 
-private class ToastPluginImpl : VMPlugin(), ToastPlugin {
+private class ToastPluginImpl : RealVMPlugin(), ToastPlugin {
     private val _state = MutableSharedFlow<ToastPlugin.State>()
     override val state: Flow<ToastPlugin.State> = _state.asSharedFlow()
 

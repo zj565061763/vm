@@ -240,7 +240,7 @@ private class PagePluginImpl<T>(
     initial: List<T>,
     private val refreshPage: Int,
     private val onLoad: suspend PagePlugin.LoadScope<T>.(page: Int) -> PagePlugin.LoadResult<T>,
-) : VMPlugin(), PagePlugin<T> {
+) : RealVMPlugin(), PagePlugin<T> {
 
     private var _currentPage = refreshPage - 1
 
