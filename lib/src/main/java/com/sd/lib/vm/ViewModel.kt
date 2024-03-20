@@ -6,11 +6,8 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.drop
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.filterNot
 import kotlinx.coroutines.launch
 
 /**
@@ -38,8 +35,6 @@ open class FViewModel<I> : ViewModel() {
 
     /** 是否处于激活状态 */
     val isVMActive: Boolean get() = _isVMActive
-    /** 激活状态变化监听 */
-    val isVMActiveFlow: Flow<Boolean> get() = _isVMActiveFlow.drop(1)
 
     /** 基于[Dispatchers.Default]并发为1的调度器 */
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -79,6 +74,16 @@ open class FViewModel<I> : ViewModel() {
     protected open suspend fun handleIntent(intent: I) = Unit
 
     /**
+     * 未激活 -> 激活 (MainThread)
+     */
+    protected open fun onActive() = Unit
+
+    /**
+     * 激活 -> 未激活 (MainThread)
+     */
+    protected open fun onInActive() = Unit
+
+    /**
      * 销毁回调
      */
     protected open fun onDestroy() = Unit
@@ -91,30 +96,14 @@ open class FViewModel<I> : ViewModel() {
         singleDispatcher.cancel()
         onDestroy()
     }
-}
 
-/**
- * 未激活 -> 激活，[viewModelScope]触发
- */
-fun FViewModel<*>.onActive(block: suspend () -> Unit) {
-    viewModelScope.launch {
-        isVMActiveFlow
-            .filter { it }
-            .collect {
-                launch { block() }
-            }
-    }
-}
-
-/**
- * 激活 -> 未激活，[viewModelScope]触发
- */
-fun FViewModel<*>.onInActive(block: suspend () -> Unit) {
-    viewModelScope.launch {
-        isVMActiveFlow
-            .filterNot { it }
-            .collect {
-                launch { block() }
-            }
+    init {
+        viewModelScope.launch {
+            _isVMActiveFlow
+                .drop(1)
+                .collect { active ->
+                    if (active) onActive() else onInActive()
+                }
+        }
     }
 }

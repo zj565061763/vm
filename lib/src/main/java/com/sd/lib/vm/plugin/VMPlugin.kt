@@ -3,7 +3,6 @@ package com.sd.lib.vm.plugin
 import android.os.Looper
 import androidx.annotation.MainThread
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.Flow
 
 class VMPluginManager(
     private val support: VMPlugin.Support
@@ -37,7 +36,6 @@ interface VMPlugin {
         val vmScope: CoroutineScope
         val isVMDestroyed: Boolean
         val isVMActive: Boolean
-        val isVMActiveFlow: Flow<Boolean>
         fun registerPlugin(plugin: VMPlugin)
     }
 }
@@ -79,7 +77,6 @@ abstract class RealVMPlugin : VMPlugin {
     protected val vmScope get() = support.vmScope
     protected val isVMDestroyed get() = support.isVMDestroyed
     protected val isVMActive get() = support.isVMActive
-    protected val isVMActiveFlow get() = support.isVMActiveFlow
     protected fun registerPlugin(plugin: VMPlugin) = support.registerPlugin(plugin)
 }
 

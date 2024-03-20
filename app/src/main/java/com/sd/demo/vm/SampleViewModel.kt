@@ -20,8 +20,6 @@ import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sd.demo.vm.plugin.ToastPlugin
 import com.sd.lib.vm.PluginViewModel
-import com.sd.lib.vm.onActive
-import com.sd.lib.vm.onInActive
 
 class SampleViewModel : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -78,18 +76,19 @@ class MyViewModel : PluginViewModel<MyViewModel.Intent>() {
         }
     }
 
+    override fun onActive() {
+        super.onActive()
+        logMsg { "onActive ${Thread.currentThread().name}" }
+    }
+
+    override fun onInActive() {
+        super.onInActive()
+        logMsg { "onInActive ${Thread.currentThread().name}" }
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         logMsg { "onDestroy ${Thread.currentThread().name}" }
-    }
-
-    init {
-        onActive {
-            logMsg { "onActive ${Thread.currentThread().name}" }
-        }
-        onInActive {
-            logMsg { "onInActive ${Thread.currentThread().name}" }
-        }
     }
 
     sealed interface Intent {

@@ -1,7 +1,6 @@
 package com.sd.demo.vm
 
 import androidx.lifecycle.ViewModel
-import app.cash.turbine.test
 import com.sd.lib.vm.FViewModel
 import com.sd.lib.vm.IgnoreActiveIntent
 import kotlinx.coroutines.Dispatchers
@@ -35,38 +34,25 @@ class ViewModelTest {
 
         vm.clearViewModel()
         assertEquals(true, vm.isVMDestroyed)
+        assertEquals("onDestroy()", vm.callbackString)
     }
 
     @Test
-    fun `test active`() {
+    fun `test active`() = runTest {
         val vm = TestViewModel()
         assertEquals(true, vm.isVMActive)
+        advanceUntilIdle()
+        assertEquals("", vm.callbackString)
 
         vm.setActive(false)
         assertEquals(false, vm.isVMActive)
+        advanceUntilIdle()
+        assertEquals("onInActive()", vm.callbackString)
 
         vm.setActive(true)
         assertEquals(true, vm.isVMActive)
-
-        vm.clearViewModel()
-        assertEquals(false, vm.isVMActive)
-    }
-
-    @Test
-    fun `test active flow`() = runTest {
-        val vm = TestViewModel()
-        assertEquals(true, vm.isVMActive)
-
-        vm.isVMActiveFlow.test {
-            vm.setActive(false)
-            assertEquals(false, awaitItem())
-
-            vm.setActive(true)
-            assertEquals(true, awaitItem())
-
-            vm.clearViewModel()
-            assertEquals(false, awaitItem())
-        }
+        advanceUntilIdle()
+        assertEquals("onActive()", vm.callbackString)
     }
 
     @Test
@@ -118,7 +104,24 @@ class ViewModelTest {
     }
 }
 
-private class TestViewModel : FViewModel<Unit>()
+private class TestViewModel : FViewModel<Unit>() {
+    var callbackString = ""
+
+    override fun onActive() {
+        super.onActive()
+        callbackString = "onActive()"
+    }
+
+    override fun onInActive() {
+        super.onInActive()
+        callbackString = "onInActive()"
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        callbackString = "onDestroy()"
+    }
+}
 
 private class TestIntentViewModel : FViewModel<TestIntentViewModel.Intent>() {
     var count = 0
