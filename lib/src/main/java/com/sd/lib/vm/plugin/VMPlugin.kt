@@ -6,7 +6,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 
 class VMPluginManager(
-    private val support: RealVMPlugin.Support
+    private val support: VMPlugin.Support
 ) {
     private val _plugins: MutableSet<RealVMPlugin> = hashSetOf()
 
@@ -32,17 +32,25 @@ class VMPluginManager(
     }
 }
 
-interface VMPlugin
+interface VMPlugin {
+    interface Support {
+        val vmScope: CoroutineScope
+        val isVMDestroyed: Boolean
+        val isVMActive: Boolean
+        val isVMActiveFlow: Flow<Boolean>
+        fun registerPlugin(plugin: VMPlugin)
+    }
+}
 
 abstract class RealVMPlugin : VMPlugin {
-    private var _support: Support? = null
+    private var _support: VMPlugin.Support? = null
     private val support get() = checkNotNull(_support) { "Plugin has not been initialized." }
 
     /**
      * 通知初始化
      */
     @MainThread
-    internal fun notifyInit(support: Support) {
+    internal fun notifyInit(support: VMPlugin.Support) {
         checkMainThread()
         if (_support != null) error("Plugin has been initialized.")
         _support = support
@@ -77,14 +85,6 @@ abstract class RealVMPlugin : VMPlugin {
     protected val isVMActive get() = support.isVMActive
     protected val isVMActiveFlow get() = support.isVMActiveFlow
     protected fun registerPlugin(plugin: VMPlugin) = support.registerPlugin(plugin)
-
-    interface Support {
-        val vmScope: CoroutineScope
-        val isVMDestroyed: Boolean
-        val isVMActive: Boolean
-        val isVMActiveFlow: Flow<Boolean>
-        fun registerPlugin(plugin: VMPlugin)
-    }
 }
 
 private fun checkMainThread() {
