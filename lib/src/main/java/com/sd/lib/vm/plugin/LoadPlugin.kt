@@ -1,6 +1,7 @@
 package com.sd.lib.vm.plugin
 
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -100,7 +101,7 @@ private class LoadPluginImpl : RealVMPlugin(), LoadPlugin {
         if (isVMActive || ignoreActive) {
             if (!canLoad()) return
 
-            _loadingJob?.cancel()
+            _loadingJob?.cancelAndJoin()
             _loadingJob = currentCoroutineContext()[Job]
 
             try {
