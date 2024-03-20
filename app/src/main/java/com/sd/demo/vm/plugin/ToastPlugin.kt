@@ -1,7 +1,7 @@
 package com.sd.demo.vm.plugin
 
-import com.sd.lib.vm.plugin.StateVMPlugin
 import com.sd.lib.vm.plugin.RealVMPlugin
+import com.sd.lib.vm.plugin.StateVMPlugin
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow

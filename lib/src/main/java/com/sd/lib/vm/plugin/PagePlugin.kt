@@ -1,6 +1,5 @@
 package com.sd.lib.vm.plugin
 
-import com.sd.lib.vm.FViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -17,7 +16,7 @@ interface PagePlugin<T> : StateVMPlugin<StateFlow<PageState<T>>> {
      * 刷新
      *
      * @param notifyLoading 是否通知[PageState.isRefreshing]
-     * @param ignoreActive 是否忽略激活状态[FViewModel.isVMActive]
+     * @param ignoreActive 是否忽略激活状态[VMPlugin.Support.isVMActive]
      * @param canLoad 是否可以加载
      */
     fun refresh(
@@ -30,7 +29,7 @@ interface PagePlugin<T> : StateVMPlugin<StateFlow<PageState<T>>> {
      * 加载更多
      *
      * @param notifyLoading 是否通知[PageState.isLoadingMore]
-     * @param ignoreActive 是否忽略激活状态[FViewModel.isVMActive]
+     * @param ignoreActive 是否忽略激活状态[VMPlugin.Support.isVMActive]
      * @param canLoad 是否可以加载
      */
     fun loadMore(

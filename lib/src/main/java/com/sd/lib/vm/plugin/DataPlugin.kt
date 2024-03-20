@@ -1,6 +1,5 @@
 package com.sd.lib.vm.plugin
 
-import com.sd.lib.vm.FViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -17,7 +16,7 @@ interface DataPlugin<T> : StateVMPlugin<StateFlow<DataState<T>>> {
      * 加载数据，如果上一次加载还未完成，再次调用此方法，会取消上一次加载
      *
      * @param notifyLoading 是否通知[DataState.isLoading]
-     * @param ignoreActive 是否忽略激活状态[FViewModel.isVMActive]
+     * @param ignoreActive 是否忽略激活状态[VMPlugin.Support.isVMActive]
      * @param canLoad 是否可以加载
      * @param onLoad 加载回调
      */
