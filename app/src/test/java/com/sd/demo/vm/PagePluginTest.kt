@@ -1,7 +1,6 @@
 package com.sd.demo.vm
 
 import android.os.Looper
-import androidx.annotation.VisibleForTesting
 import app.cash.turbine.TurbineTestContext
 import app.cash.turbine.test
 import com.sd.lib.vm.PluginViewModel
@@ -378,7 +377,6 @@ private suspend fun TestScope.testLoadMore(
     }
 }
 
-@VisibleForTesting
 private class PagePluginViewModel : PluginViewModel<Unit>() {
     private val _list = mutableListOf<Int>()
 

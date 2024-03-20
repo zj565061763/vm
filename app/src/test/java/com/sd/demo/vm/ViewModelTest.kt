@@ -1,6 +1,5 @@
 package com.sd.demo.vm
 
-import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.ViewModel
 import app.cash.turbine.test
 import com.sd.lib.vm.FViewModel
@@ -99,10 +98,8 @@ class ViewModelTest {
     }
 }
 
-@VisibleForTesting
 private class TestViewModel : FViewModel<Unit>()
 
-@VisibleForTesting
 private class TestIntentViewModel : FViewModel<TestIntentViewModel.Intent>() {
     var count = 0
         private set
@@ -121,7 +118,6 @@ private class TestIntentViewModel : FViewModel<TestIntentViewModel.Intent>() {
     }
 }
 
-@VisibleForTesting
 fun ViewModel.clearViewModel() {
     ViewModel::class.java.getDeclaredMethod("clear").apply {
         this.isAccessible = true

@@ -1,7 +1,6 @@
 package com.sd.demo.vm
 
 import android.os.Looper
-import androidx.annotation.VisibleForTesting
 import com.sd.lib.vm.PluginViewModel
 import com.sd.lib.vm.plugin.ViewModelPlugin
 import io.mockk.every
@@ -46,7 +45,6 @@ class CustomPluginTest {
     }
 }
 
-@VisibleForTesting
 private class CustomPluginViewModel : PluginViewModel<Unit>() {
     val customPlugin = CustomPlugin().register()
 }

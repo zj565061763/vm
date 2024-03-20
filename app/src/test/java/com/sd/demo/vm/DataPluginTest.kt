@@ -1,7 +1,6 @@
 package com.sd.demo.vm
 
 import android.os.Looper
-import androidx.annotation.VisibleForTesting
 import app.cash.turbine.TurbineTestContext
 import app.cash.turbine.test
 import com.sd.lib.vm.PluginViewModel
@@ -169,7 +168,6 @@ private suspend fun TestScope.testLoad(
     }
 }
 
-@VisibleForTesting
 private class DataPluginViewModel : PluginViewModel<Unit>() {
     private var _count = 0
     private val _plugin = DataPlugin(_count).register()
