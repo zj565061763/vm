@@ -6,23 +6,15 @@ import com.sd.lib.vm.PluginViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 
-interface ViewModelPluginSupport {
-    val viewModelScope: CoroutineScope
-    val isVMDestroyed: Boolean
-    val isVMActive: Boolean
-    val isVMActiveFlow: Flow<Boolean>
-    fun registerPlugin(plugin: PluginViewModel.Plugin)
-}
-
 abstract class VMPlugin : PluginViewModel.Plugin {
-    private var _support: ViewModelPluginSupport? = null
+    private var _support: Support? = null
     private val support get() = checkNotNull(_support) { "Plugin has not been initialized." }
 
     /**
      * 通知初始化
      */
     @MainThread
-    internal fun notifyInit(support: ViewModelPluginSupport) {
+    internal fun notifyInit(support: Support) {
         checkMainThread()
         if (_support != null) error("Plugin has been initialized.")
         _support = support
@@ -57,6 +49,14 @@ abstract class VMPlugin : PluginViewModel.Plugin {
     protected val isVMActive get() = support.isVMActive
     protected val isVMActiveFlow get() = support.isVMActiveFlow
     protected fun registerPlugin(plugin: PluginViewModel.Plugin) = support.registerPlugin(plugin)
+
+    interface Support {
+        val viewModelScope: CoroutineScope
+        val isVMDestroyed: Boolean
+        val isVMActive: Boolean
+        val isVMActiveFlow: Flow<Boolean>
+        fun registerPlugin(plugin: PluginViewModel.Plugin)
+    }
 }
 
 private fun checkMainThread() {

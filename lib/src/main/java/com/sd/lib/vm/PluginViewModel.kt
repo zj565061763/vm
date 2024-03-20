@@ -4,7 +4,6 @@ import androidx.annotation.CallSuper
 import androidx.annotation.MainThread
 import androidx.lifecycle.viewModelScope
 import com.sd.lib.vm.plugin.VMPlugin
-import com.sd.lib.vm.plugin.ViewModelPluginSupport
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 
@@ -43,7 +42,7 @@ open class PluginViewModel<I> : FViewModel<I>() {
         destroyPlugins()
     }
 
-    private val _pluginSupport = object : ViewModelPluginSupport {
+    private val _pluginSupport = object : VMPlugin.Support {
         override val viewModelScope: CoroutineScope get() = this@PluginViewModel.viewModelScope
         override val isVMDestroyed: Boolean get() = this@PluginViewModel.isVMDestroyed
         override val isVMActive: Boolean get() = this@PluginViewModel.isVMActive
