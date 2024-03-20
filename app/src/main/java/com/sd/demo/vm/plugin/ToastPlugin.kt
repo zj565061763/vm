@@ -1,13 +1,13 @@
 package com.sd.demo.vm.plugin
 
-import com.sd.lib.vm.plugin.StatePlugin
+import com.sd.lib.vm.plugin.StateVMPlugin
 import com.sd.lib.vm.plugin.RealVMPlugin
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 
-interface ToastPlugin : StatePlugin<Flow<ToastPlugin.State>> {
+interface ToastPlugin : StateVMPlugin<Flow<ToastPlugin.State>> {
     fun showToast(msg: String)
 
     data class State(

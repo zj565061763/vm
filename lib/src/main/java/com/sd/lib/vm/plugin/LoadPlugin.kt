@@ -11,7 +11,7 @@ import kotlinx.coroutines.launch
 /**
  * 加载数据
  */
-interface LoadPlugin : StatePlugin<StateFlow<LoadState>> {
+interface LoadPlugin : StateVMPlugin<StateFlow<LoadState>> {
     /**
      * 加载数据，如果上一次加载还未完成，再次调用此方法，会取消上一次加载
      *

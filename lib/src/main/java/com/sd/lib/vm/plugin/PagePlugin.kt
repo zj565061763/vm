@@ -12,7 +12,7 @@ import kotlinx.coroutines.launch
 /**
  * 分页管理
  */
-interface PagePlugin<T> : StatePlugin<StateFlow<PageState<T>>> {
+interface PagePlugin<T> : StateVMPlugin<StateFlow<PageState<T>>> {
     /**
      * 刷新
      *

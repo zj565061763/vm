@@ -5,4 +5,4 @@ interface StateOwner<T> {
     val state: T
 }
 
-interface StatePlugin<T> : VMPlugin, StateOwner<T>
+interface StateVMPlugin<T> : VMPlugin, StateOwner<T>

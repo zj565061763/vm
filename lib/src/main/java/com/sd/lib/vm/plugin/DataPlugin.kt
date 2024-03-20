@@ -12,7 +12,7 @@ import kotlinx.coroutines.launch
 /**
  * 加载数据
  */
-interface DataPlugin<T> : StatePlugin<StateFlow<DataState<T>>> {
+interface DataPlugin<T> : StateVMPlugin<StateFlow<DataState<T>>> {
     /**
      * 加载数据，如果上一次加载还未完成，再次调用此方法，会取消上一次加载
      *

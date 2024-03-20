@@ -1,13 +1,13 @@
 package com.sd.demo.vm.plugin
 
-import com.sd.lib.vm.plugin.StatePlugin
+import com.sd.lib.vm.plugin.StateVMPlugin
 import com.sd.lib.vm.plugin.RealVMPlugin
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
-interface LoadingDialogPlugin : StatePlugin<StateFlow<LoadingDialogPlugin.State?>> {
+interface LoadingDialogPlugin : StateVMPlugin<StateFlow<LoadingDialogPlugin.State?>> {
     /**
      * 显示加载框
      */
