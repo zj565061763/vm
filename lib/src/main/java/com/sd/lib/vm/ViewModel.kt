@@ -34,13 +34,12 @@ open class FViewModel<I> : ViewModel() {
 
     @Volatile
     private var _isVMActive = true
-    private val _isActiveFlow = MutableStateFlow(_isVMActive)
+    private val _isVMActiveFlow = MutableStateFlow(_isVMActive)
 
     /** 是否处于激活状态 */
     val isVMActive: Boolean get() = _isVMActive
-
     /** 激活状态变化监听 */
-    val isActiveFlow: Flow<Boolean> = _isActiveFlow.drop(1)
+    val isVMActiveFlow: Flow<Boolean> get() = _isVMActiveFlow.drop(1)
 
     /** 基于[Dispatchers.Default]并发为1的调度器 */
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -52,7 +51,7 @@ open class FViewModel<I> : ViewModel() {
     fun setActive(active: Boolean) {
         if (isDestroyed) return
         _isVMActive = active
-        _isActiveFlow.value = active
+        _isVMActiveFlow.value = active
     }
 
     /**
@@ -98,7 +97,7 @@ open class FViewModel<I> : ViewModel() {
  */
 fun FViewModel<*>.onActive(block: suspend () -> Unit) {
     viewModelScope.launch {
-        isActiveFlow
+        isVMActiveFlow
             .filter { it }
             .collect {
                 launch { block() }
@@ -111,7 +110,7 @@ fun FViewModel<*>.onActive(block: suspend () -> Unit) {
  */
 fun FViewModel<*>.onInActive(block: suspend () -> Unit) {
     viewModelScope.launch {
-        isActiveFlow
+        isVMActiveFlow
             .filterNot { it }
             .collect {
                 launch { block() }

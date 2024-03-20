@@ -47,7 +47,7 @@ open class PluginViewModel<I> : FViewModel<I>() {
         override val viewModelScope: CoroutineScope get() = this@PluginViewModel.viewModelScope
         override val isDestroyed: Boolean get() = this@PluginViewModel.isDestroyed
         override val isVMActive: Boolean get() = this@PluginViewModel.isVMActive
-        override val isActiveFlow: Flow<Boolean> get() = this@PluginViewModel.isActiveFlow
+        override val isActiveFlow: Flow<Boolean> get() = this@PluginViewModel.isVMActiveFlow
         override fun registerPlugin(plugin: Plugin) = this@PluginViewModel.registerPlugin(plugin)
     }
 

@@ -56,7 +56,7 @@ class ViewModelTest {
     @Test
     fun `test active flow`() = runTest {
         val vm = TestViewModel()
-        vm.isActiveFlow.test {
+        vm.isVMActiveFlow.test {
             vm.setActive(false)
             assertEquals(false, awaitItem())
 

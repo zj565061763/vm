@@ -14,20 +14,9 @@ interface ViewModelPluginSupport {
     fun registerPlugin(plugin: PluginViewModel.Plugin)
 }
 
-abstract class ViewModelPlugin : PluginViewModel.Plugin, ViewModelPluginSupport {
+abstract class ViewModelPlugin : PluginViewModel.Plugin {
     private var _support: ViewModelPluginSupport? = null
     private val support get() = checkNotNull(_support) { "Plugin has not been initialized." }
-
-    override val viewModelScope get() = support.viewModelScope
-    override val isDestroyed get() = support.isDestroyed
-    override val isVMActive get() = support.isVMActive
-    override val isActiveFlow get() = support.isActiveFlow
-
-    @MainThread
-    override fun registerPlugin(plugin: PluginViewModel.Plugin) {
-        require(plugin !== this@ViewModelPlugin)
-        support.registerPlugin(plugin)
-    }
 
     /**
      * 通知初始化
@@ -60,6 +49,14 @@ abstract class ViewModelPlugin : PluginViewModel.Plugin, ViewModelPluginSupport 
      */
     @MainThread
     protected open fun onDestroy() = Unit
+
+    //-------------------- Support --------------------
+
+    protected val viewModelScope get() = support.viewModelScope
+    protected val isDestroyed get() = support.isDestroyed
+    protected val isVMActive get() = support.isVMActive
+    protected val isActiveFlow get() = support.isActiveFlow
+    protected fun registerPlugin(plugin: PluginViewModel.Plugin) = support.registerPlugin(plugin)
 }
 
 private fun checkMainThread() {
