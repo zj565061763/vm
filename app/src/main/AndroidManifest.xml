@@ -23,6 +23,7 @@
         </activity>
 
         <activity android:name=".SampleViewModel" />
+        <activity android:name=".SampleLoadPlugin" />
         <activity android:name=".SampleDataPlugin" />
         <activity android:name=".SamplePagePlugin" />
 

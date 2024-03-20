@@ -29,6 +29,7 @@ class MainActivity : ComponentActivity() {
                 Content(
                     listActivity = listOf(
                         SampleViewModel::class.java,
+                        SampleLoadPlugin::class.java,
                         SampleDataPlugin::class.java,
                         SamplePagePlugin::class.java,
                     ),
