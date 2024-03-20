@@ -55,6 +55,8 @@ class ViewModelTest {
     @Test
     fun `test active flow`() = runTest {
         val vm = TestViewModel()
+        assertEquals(true, vm.isVMActive)
+
         vm.isVMActiveFlow.test {
             vm.setActive(false)
             assertEquals(false, awaitItem())
@@ -70,9 +72,10 @@ class ViewModelTest {
         assertEquals(true, vm.isVMActive)
 
         vm.dispatch(TestIntentViewModel.Intent.ActiveContent)
+        vm.dispatch(TestIntentViewModel.Intent.ActiveContent)
         advanceUntilIdle()
 
-        assertEquals(1, vm.count)
+        assertEquals(2, vm.count)
     }
 
     @Test
@@ -80,6 +83,7 @@ class ViewModelTest {
         val vm = TestIntentViewModel().apply { setActive(false) }
         assertEquals(false, vm.isVMActive)
 
+        vm.dispatch(TestIntentViewModel.Intent.ActiveContent)
         vm.dispatch(TestIntentViewModel.Intent.ActiveContent)
         advanceUntilIdle()
 
@@ -92,9 +96,10 @@ class ViewModelTest {
         assertEquals(false, vm.isVMActive)
 
         vm.dispatch(TestIntentViewModel.Intent.IgnoreActiveContent)
+        vm.dispatch(TestIntentViewModel.Intent.IgnoreActiveContent)
         advanceUntilIdle()
 
-        assertEquals(1, vm.count)
+        assertEquals(2, vm.count)
     }
 }
 
