@@ -63,6 +63,9 @@ class ViewModelTest {
 
             vm.setActive(true)
             assertEquals(true, awaitItem())
+
+            vm.clearViewModel()
+            assertEquals(false, awaitItem())
         }
     }
 
@@ -74,7 +77,13 @@ class ViewModelTest {
         vm.dispatch(TestIntentViewModel.Intent.ActiveContent)
         vm.dispatch(TestIntentViewModel.Intent.ActiveContent)
         advanceUntilIdle()
+        assertEquals(2, vm.count)
 
+        vm.clearViewModel()
+
+        vm.dispatch(TestIntentViewModel.Intent.ActiveContent)
+        vm.dispatch(TestIntentViewModel.Intent.ActiveContent)
+        advanceUntilIdle()
         assertEquals(2, vm.count)
     }
 
@@ -98,7 +107,13 @@ class ViewModelTest {
         vm.dispatch(TestIntentViewModel.Intent.IgnoreActiveContent)
         vm.dispatch(TestIntentViewModel.Intent.IgnoreActiveContent)
         advanceUntilIdle()
+        assertEquals(2, vm.count)
 
+        vm.clearViewModel()
+
+        vm.dispatch(TestIntentViewModel.Intent.IgnoreActiveContent)
+        vm.dispatch(TestIntentViewModel.Intent.IgnoreActiveContent)
+        advanceUntilIdle()
         assertEquals(2, vm.count)
     }
 }
