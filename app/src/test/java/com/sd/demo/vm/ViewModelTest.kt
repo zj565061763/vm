@@ -32,10 +32,10 @@ class ViewModelTest {
     @Test
     fun `test clear`() {
         val vm = TestViewModel()
-        assertEquals(false, vm.isDestroyed)
+        assertEquals(false, vm.isVMDestroyed)
 
         vm.clearViewModel()
-        assertEquals(true, vm.isDestroyed)
+        assertEquals(true, vm.isVMDestroyed)
     }
 
     @Test

@@ -83,7 +83,7 @@ private class LoadPluginImpl : ViewModelPlugin(), LoadPlugin {
         canLoad: suspend () -> Boolean,
         onLoad: suspend () -> Unit,
     ) {
-        if (isDestroyed) return
+        if (isVMDestroyed) return
         if (isVMActive || ignoreActive) {
             if (canLoad()) {
                 try {

@@ -26,7 +26,7 @@ open class FViewModel<I> : ViewModel() {
 
     /** 是否已经销毁 */
     @Volatile
-    var isDestroyed: Boolean = false
+    var isVMDestroyed: Boolean = false
         private set(value) {
             require(value) { "Require true value." }
             field = true
@@ -49,7 +49,7 @@ open class FViewModel<I> : ViewModel() {
      * 设置激活状态
      */
     fun setActive(active: Boolean) {
-        if (isDestroyed) return
+        if (isVMDestroyed) return
         _isVMActive = active
         _isVMActiveFlow.value = active
     }
@@ -58,7 +58,7 @@ open class FViewModel<I> : ViewModel() {
      * 触发意图
      */
     fun dispatch(intent: I) {
-        if (isDestroyed) return
+        if (isVMDestroyed) return
         viewModelScope.launch {
             if (canDispatchIntent(intent)) {
                 handleIntent(intent)
@@ -85,8 +85,9 @@ open class FViewModel<I> : ViewModel() {
 
     final override fun onCleared() {
         super.onCleared()
-        isDestroyed = true
+        isVMDestroyed = true
         _isVMActive = false
+        _isVMActiveFlow.value = false
         singleDispatcher.cancel()
         onDestroy()
     }

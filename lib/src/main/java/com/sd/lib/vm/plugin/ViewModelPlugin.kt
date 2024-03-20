@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface ViewModelPluginSupport {
     val viewModelScope: CoroutineScope
-    val isDestroyed: Boolean
+    val isVMDestroyed: Boolean
     val isVMActive: Boolean
     val isVMActiveFlow: Flow<Boolean>
     fun registerPlugin(plugin: PluginViewModel.Plugin)
@@ -53,7 +53,7 @@ abstract class ViewModelPlugin : PluginViewModel.Plugin {
     //-------------------- Support --------------------
 
     protected val viewModelScope get() = support.viewModelScope
-    protected val isDestroyed get() = support.isDestroyed
+    protected val isVMDestroyed get() = support.isVMDestroyed
     protected val isVMActive get() = support.isVMActive
     protected val isVMActiveFlow get() = support.isVMActiveFlow
     protected fun registerPlugin(plugin: PluginViewModel.Plugin) = support.registerPlugin(plugin)
