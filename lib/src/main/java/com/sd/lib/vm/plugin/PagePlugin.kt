@@ -3,8 +3,6 @@ package com.sd.lib.vm.plugin
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -399,24 +397,18 @@ private class PagePluginImpl<T>(
         registerPlugin(_loadMorePlugin)
 
         vmScope.launch {
-            _refreshPlugin.state
-                .map { it.isLoading }
-                .distinctUntilChanged()
-                .collect { isLoading ->
-                    _state.update {
-                        it.copy(isRefreshing = isLoading)
-                    }
+            _refreshPlugin.isLoading.collect { isLoading ->
+                _state.update {
+                    it.copy(isRefreshing = isLoading)
                 }
+            }
         }
         vmScope.launch {
-            _loadMorePlugin.state
-                .map { it.isLoading }
-                .distinctUntilChanged()
-                .collect { isLoading ->
-                    _state.update {
-                        it.copy(isLoadingMore = isLoading)
-                    }
+            _loadMorePlugin.isLoading.collect { isLoading ->
+                _state.update {
+                    it.copy(isLoadingMore = isLoading)
                 }
+            }
         }
     }
 }

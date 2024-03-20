@@ -26,8 +26,6 @@ import com.sd.lib.vm.plugin.LoadPlugin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.UUID
@@ -109,12 +107,11 @@ class MyLoadViewModel : PluginViewModel<Unit>() {
 
     init {
         viewModelScope.launch {
-            _plugin.state
-                .map { it.isLoading }
-                .distinctUntilChanged()
-                .collect { isLoading ->
-                    _state.update { it.copy(isLoading = isLoading) }
+            _plugin.isLoading.collect { isLoading ->
+                _state.update {
+                    it.copy(isLoading = isLoading)
                 }
+            }
         }
     }
 

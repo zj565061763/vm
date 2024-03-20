@@ -6,18 +6,21 @@ import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.Collections
 
 /**
  * 加载数据
  */
-interface LoadPlugin : StateVMPlugin<StateFlow<LoadState>> {
+interface LoadPlugin : VMPlugin {
+
+    /** 是否正在加载中 */
+    val isLoading: StateFlow<Boolean>
+
     /**
      * 加载数据，如果上一次加载还未完成，再次调用此方法，会取消上一次加载
      *
-     * @param notifyLoading 是否通知[LoadState.isLoading]
+     * @param notifyLoading 是否通知[isLoading]
      * @param ignoreActive 是否忽略激活状态[VMPlugin.Support.isVMActive]
      * @param canLoad 是否可以加载
      * @param onLoad 加载回调
@@ -40,15 +43,6 @@ interface LoadPlugin : StateVMPlugin<StateFlow<LoadState>> {
  */
 fun LoadPlugin(): LoadPlugin = LoadPluginImpl()
 
-//---------- state ----------
-
-data class LoadState(
-    /** 是否正在加载中 */
-    val isLoading: Boolean = false,
-)
-
-//---------- impl ----------
-
 private class LoadPluginImpl : RealVMPlugin(), LoadPlugin {
     /** 所有任务 */
     private val _jobs: MutableSet<Job> = Collections.synchronizedSet(hashSetOf())
@@ -57,8 +51,8 @@ private class LoadPluginImpl : RealVMPlugin(), LoadPlugin {
     @Volatile
     private var _loadingJob: Job? = null
 
-    private val _state = MutableStateFlow(LoadState())
-    override val state: StateFlow<LoadState> = _state.asStateFlow()
+    private val _isLoading = MutableStateFlow(false)
+    override val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
     override fun load(
         notifyLoading: Boolean,
@@ -104,12 +98,12 @@ private class LoadPluginImpl : RealVMPlugin(), LoadPlugin {
 
             try {
                 if (notifyLoading) {
-                    _state.update { it.copy(isLoading = true) }
+                    _isLoading.value = true
                 }
                 onLoad()
             } finally {
                 if (notifyLoading) {
-                    _state.update { it.copy(isLoading = false) }
+                    _isLoading.value = false
                 }
             }
         }
