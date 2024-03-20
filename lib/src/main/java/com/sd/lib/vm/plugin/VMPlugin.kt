@@ -11,7 +11,7 @@ class VMPluginManager(
     private val _plugins: MutableSet<RealVMPlugin> = hashSetOf()
 
     /**
-     * 注册插件
+     * 注册插件，[plugin]必须是[RealVMPlugin]的实现类
      */
     @MainThread
     fun registerPlugin(plugin: VMPlugin) {
@@ -23,7 +23,7 @@ class VMPluginManager(
     }
 
     /**
-     * 销毁所有插件
+     * 清空并销毁所有插件
      */
     @MainThread
     fun destroyPlugins() {
