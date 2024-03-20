@@ -6,9 +6,8 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
+import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * 忽略激活状态的意图
@@ -29,12 +28,10 @@ open class FViewModel<I> : ViewModel() {
             field = true
         }
 
-    @Volatile
-    private var _isVMActive = true
-    private val _isVMActiveFlow = MutableStateFlow(_isVMActive)
+    private val _isVMActive = AtomicBoolean(true)
 
-    /** 是否处于激活状态 */
-    val isVMActive: Boolean get() = _isVMActive
+    /** 是否处于激活状态，默认true */
+    val isVMActive: Boolean get() = _isVMActive.get() && !isVMDestroyed
 
     /** 基于[Dispatchers.Default]并发为1的调度器 */
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -44,16 +41,18 @@ open class FViewModel<I> : ViewModel() {
      * 设置激活状态
      */
     fun setActive(active: Boolean) {
-        if (isVMDestroyed) return
-        _isVMActive = active
-        _isVMActiveFlow.value = active
+        val oldValue = _isVMActive.getAndSet(active)
+        if (oldValue != active) {
+            viewModelScope.launch {
+                if (active) onActive() else onInActive()
+            }
+        }
     }
 
     /**
      * 触发意图
      */
     fun dispatch(intent: I) {
-        if (isVMDestroyed) return
         viewModelScope.launch {
             if (canDispatchIntent(intent)) {
                 handleIntent(intent)
@@ -91,19 +90,8 @@ open class FViewModel<I> : ViewModel() {
     final override fun onCleared() {
         super.onCleared()
         isVMDestroyed = true
-        _isVMActive = false
-        _isVMActiveFlow.value = false
+        _isVMActive.set(false)
         singleDispatcher.cancel()
         onDestroy()
-    }
-
-    init {
-        viewModelScope.launch {
-            _isVMActiveFlow
-                .drop(1)
-                .collect { active ->
-                    if (active) onActive() else onInActive()
-                }
-        }
     }
 }
