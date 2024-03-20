@@ -72,6 +72,7 @@ class MyViewModel : PluginViewModel<MyViewModel.Intent>() {
 
     override suspend fun handleIntent(intent: Intent) {
         super.handleIntent(intent)
+        logMsg { "handleIntent ${Thread.currentThread().name}" }
         when (intent) {
             Intent.Login -> _toast.showToast("login")
         }
