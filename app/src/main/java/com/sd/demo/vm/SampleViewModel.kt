@@ -49,8 +49,8 @@ private fun Content(
     val context = LocalContext.current
     val stateLoadingDialog by vm.stateLoadingDialog.collectAsStateWithLifecycle()
 
+    // 设置ViewModel的激活状态
     LifecycleStartEffect(vm) {
-        // 设置ViewModel的激活状态
         vm.setActive(true)
         onStopOrDispose { vm.setActive(false) }
     }
@@ -119,7 +119,7 @@ internal class MyViewModel : PluginViewModel<MyViewModel.Intent>() {
         try {
             _toast.showToast("login")
             _loadingDialog.showLoading("login...")
-            delay(3_000)
+            delay(5_000)
         } finally {
             _loadingDialog.hideLoading()
             _toast.showToast("login success")
