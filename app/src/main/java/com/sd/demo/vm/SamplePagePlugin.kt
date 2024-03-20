@@ -181,7 +181,7 @@ private fun FooterView(
     }
 }
 
-internal class MyPageViewModel : PluginViewModel<Unit>() {
+class MyPageViewModel : PluginViewModel<Unit>() {
     private val _listUser = mutableListOf<UserModel>()
 
     /** 分页数据 */

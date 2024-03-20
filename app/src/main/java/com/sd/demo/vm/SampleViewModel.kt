@@ -100,7 +100,7 @@ private fun LoadingDialog(
     }
 }
 
-internal class MyViewModel : PluginViewModel<MyViewModel.Intent>() {
+class MyViewModel : PluginViewModel<MyViewModel.Intent>() {
 
     private val _toast = ToastPlugin().register()
     private val _loadingDialog = LoadingDialogPlugin().register()
