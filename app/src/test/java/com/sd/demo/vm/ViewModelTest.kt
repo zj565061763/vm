@@ -28,34 +28,44 @@ class ViewModelTest {
     }
 
     @Test
-    fun `test clear`() {
-        val vm = TestViewModel()
+    fun `test destroy`() {
+        val vm = TestDestroyViewModel()
         assertEquals(false, vm.isVMDestroyed)
+        assertEquals("", vm.callbackString)
+        assertEquals(0, vm.callbackCount)
 
-        vm.clearViewModel()
+        vm.tryClear()
         assertEquals(true, vm.isVMDestroyed)
         assertEquals("onDestroy()", vm.callbackString)
+        assertEquals(1, vm.callbackCount)
     }
 
     @Test
     fun `test active`() = runTest {
-        val vm = TestViewModel()
+        val vm = TestActiveViewModel()
         assertEquals(true, vm.isVMActive)
         advanceUntilIdle()
         assertEquals("", vm.callbackString)
+        assertEquals(0, vm.callbackCount)
 
+        vm.setActive(false)
         vm.setActive(false)
         assertEquals(false, vm.isVMActive)
         advanceUntilIdle()
         assertEquals("onInActive()", vm.callbackString)
+        assertEquals(1, vm.callbackCount)
 
+        vm.setActive(true)
         vm.setActive(true)
         assertEquals(true, vm.isVMActive)
         advanceUntilIdle()
         assertEquals("onActive()", vm.callbackString)
+        assertEquals(2, vm.callbackCount)
 
-        vm.clearViewModel()
+        vm.tryClear()
         assertEquals(false, vm.isVMActive)
+        assertEquals("onActive()", vm.callbackString)
+        assertEquals(2, vm.callbackCount)
     }
 
     @Test
@@ -68,7 +78,7 @@ class ViewModelTest {
         advanceUntilIdle()
         assertEquals(2, vm.count)
 
-        vm.clearViewModel()
+        vm.tryClear()
 
         vm.dispatch(TestIntentViewModel.Intent.ActiveContent)
         vm.dispatch(TestIntentViewModel.Intent.ActiveContent)
@@ -98,7 +108,7 @@ class ViewModelTest {
         advanceUntilIdle()
         assertEquals(2, vm.count)
 
-        vm.clearViewModel()
+        vm.tryClear()
 
         vm.dispatch(TestIntentViewModel.Intent.IgnoreActiveContent)
         vm.dispatch(TestIntentViewModel.Intent.IgnoreActiveContent)
@@ -107,22 +117,37 @@ class ViewModelTest {
     }
 }
 
-private class TestViewModel : FViewModel<Unit>() {
+private class TestDestroyViewModel : FViewModel<Unit>() {
     var callbackString = ""
+        private set
+
+    var callbackCount = 0
+        private set
+
+    override fun onDestroy() {
+        super.onDestroy()
+        callbackCount++
+        callbackString = "onDestroy()"
+    }
+}
+
+private class TestActiveViewModel : FViewModel<Unit>() {
+    var callbackString = ""
+        private set
+
+    var callbackCount = 0
+        private set
 
     override fun onActive() {
         super.onActive()
+        callbackCount++
         callbackString = "onActive()"
     }
 
     override fun onInActive() {
         super.onInActive()
+        callbackCount++
         callbackString = "onInActive()"
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        callbackString = "onDestroy()"
     }
 }
 
@@ -144,9 +169,9 @@ private class TestIntentViewModel : FViewModel<TestIntentViewModel.Intent>() {
     }
 }
 
-fun ViewModel.clearViewModel() {
+fun ViewModel.tryClear() {
     ViewModel::class.java.getDeclaredMethod("clear").apply {
         this.isAccessible = true
-        this.invoke(this@clearViewModel)
+        this.invoke(this@tryClear)
     }
 }

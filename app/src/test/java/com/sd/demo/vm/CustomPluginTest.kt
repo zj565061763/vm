@@ -40,7 +40,7 @@ class CustomPluginTest {
         val vm = CustomPluginViewModel()
         assertEquals(1, vm.customPlugin.count)
 
-        vm.clearViewModel()
+        vm.tryClear()
         assertEquals(2, vm.customPlugin.count)
     }
 }
