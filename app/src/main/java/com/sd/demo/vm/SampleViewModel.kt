@@ -8,27 +8,20 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.LifecycleStartEffect
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.sd.demo.vm.plugin.LoadingDialogPlugin
 import com.sd.demo.vm.plugin.ToastPlugin
 import com.sd.lib.vm.PluginViewModel
 import com.sd.lib.vm.onActive
 import com.sd.lib.vm.onInActive
-import kotlinx.coroutines.delay
 
 class SampleViewModel : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -46,9 +39,6 @@ private fun Content(
     modifier: Modifier = Modifier,
     vm: MyViewModel = viewModel()
 ) {
-    val context = LocalContext.current
-    val stateLoadingDialog by vm.stateLoadingDialog.collectAsStateWithLifecycle()
-
     // 设置ViewModel的激活状态
     LifecycleStartEffect(vm) {
         vm.setActive(true)
@@ -56,14 +46,12 @@ private fun Content(
     }
 
     // toast
+    val context = LocalContext.current
     LaunchedEffect(vm) {
         vm.stateToast.collect { state ->
             Toast.makeText(context, state.msg, Toast.LENGTH_SHORT).show()
         }
     }
-
-    // loading dialog
-    stateLoadingDialog?.let { LoadingDialog(msg = it.msg) }
 
     Column(
         modifier = modifier.fillMaxSize(),
@@ -78,51 +66,14 @@ private fun Content(
     }
 }
 
-/**
- * 加载框
- */
-@Composable
-private fun LoadingDialog(
-    modifier: Modifier = Modifier,
-    msg: String,
-) {
-    Dialog(
-        onDismissRequest = { },
-        properties = DialogProperties(
-            dismissOnBackPress = false,
-            dismissOnClickOutside = false,
-        )
-    ) {
-        Column(modifier = modifier) {
-            CircularProgressIndicator()
-            Text(text = msg)
-        }
-    }
-}
-
 class MyViewModel : PluginViewModel<MyViewModel.Intent>() {
-
     private val _toast = ToastPlugin().register()
-    private val _loadingDialog = LoadingDialogPlugin().register()
-
     val stateToast = _toast.state
-    val stateLoadingDialog = _loadingDialog.state
 
     override suspend fun handleIntent(intent: Intent) {
         super.handleIntent(intent)
         when (intent) {
-            Intent.Login -> handleLogin()
-        }
-    }
-
-    private suspend fun handleLogin() {
-        try {
-            _toast.showToast("login")
-            _loadingDialog.showLoading("login...")
-            delay(5_000)
-        } finally {
-            _loadingDialog.hideLoading()
-            _toast.showToast("login success")
+            Intent.Login -> _toast.showToast("login")
         }
     }
 
