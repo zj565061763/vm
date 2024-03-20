@@ -14,7 +14,7 @@ interface ViewModelPluginSupport {
     fun registerPlugin(plugin: PluginViewModel.Plugin)
 }
 
-abstract class ViewModelPlugin : PluginViewModel.Plugin {
+abstract class VMPlugin : PluginViewModel.Plugin {
     private var _support: ViewModelPluginSupport? = null
     private val support get() = checkNotNull(_support) { "Plugin has not been initialized." }
 

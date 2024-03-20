@@ -3,14 +3,14 @@ package com.sd.lib.vm
 import androidx.annotation.CallSuper
 import androidx.annotation.MainThread
 import androidx.lifecycle.viewModelScope
-import com.sd.lib.vm.plugin.ViewModelPlugin
+import com.sd.lib.vm.plugin.VMPlugin
 import com.sd.lib.vm.plugin.ViewModelPluginSupport
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 
 open class PluginViewModel<I> : FViewModel<I>() {
 
-    private val _plugins: MutableSet<ViewModelPlugin> = hashSetOf()
+    private val _plugins: MutableSet<VMPlugin> = hashSetOf()
 
     /**
      * 注册插件
@@ -23,7 +23,7 @@ open class PluginViewModel<I> : FViewModel<I>() {
     @MainThread
     internal fun registerPlugin(plugin: Plugin) {
         if (isVMDestroyed) return
-        require(plugin is ViewModelPlugin) { "plugin should be ${ViewModelPlugin::class.java.name}" }
+        require(plugin is VMPlugin) { "plugin should be ${VMPlugin::class.java.name}" }
         if (_plugins.add(plugin)) {
             plugin.notifyInit(_pluginSupport)
         }
