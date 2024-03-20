@@ -149,7 +149,7 @@ private class DataPluginImpl<T>(initial: T) : VMPlugin(), DataPlugin<T> {
         super.onInit()
         registerPlugin(_loadPlugin)
 
-        viewModelScope.launch {
+        vmScope.launch {
             _loadPlugin.state
                 .map { it.isLoading }
                 .distinctUntilChanged()

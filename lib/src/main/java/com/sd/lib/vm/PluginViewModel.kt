@@ -43,7 +43,7 @@ open class PluginViewModel<I> : FViewModel<I>() {
     }
 
     private val _pluginSupport = object : VMPlugin.Support {
-        override val viewModelScope: CoroutineScope get() = this@PluginViewModel.viewModelScope
+        override val vmScope: CoroutineScope get() = this@PluginViewModel.viewModelScope
         override val isVMDestroyed: Boolean get() = this@PluginViewModel.isVMDestroyed
         override val isVMActive: Boolean get() = this@PluginViewModel.isVMActive
         override val isVMActiveFlow: Flow<Boolean> get() = this@PluginViewModel.isVMActiveFlow

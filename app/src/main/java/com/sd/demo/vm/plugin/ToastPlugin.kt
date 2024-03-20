@@ -24,7 +24,7 @@ private class ToastPluginImpl : VMPlugin(), ToastPlugin {
     override val state: Flow<ToastPlugin.State> = _state.asSharedFlow()
 
     override fun showToast(msg: String) {
-        viewModelScope.launch {
+        vmScope.launch {
             _state.emit(ToastPlugin.State(msg = msg))
         }
     }

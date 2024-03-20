@@ -399,7 +399,7 @@ private class PagePluginImpl<T>(
         registerPlugin(_refreshPlugin)
         registerPlugin(_loadMorePlugin)
 
-        viewModelScope.launch {
+        vmScope.launch {
             _refreshPlugin.state
                 .map { it.isLoading }
                 .distinctUntilChanged()
@@ -409,7 +409,7 @@ private class PagePluginImpl<T>(
                     }
                 }
         }
-        viewModelScope.launch {
+        vmScope.launch {
             _loadMorePlugin.state
                 .map { it.isLoading }
                 .distinctUntilChanged()

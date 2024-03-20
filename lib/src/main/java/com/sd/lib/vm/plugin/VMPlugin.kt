@@ -44,14 +44,14 @@ abstract class VMPlugin : PluginViewModel.Plugin {
 
     //-------------------- Support --------------------
 
-    protected val viewModelScope get() = support.viewModelScope
+    protected val vmScope get() = support.vmScope
     protected val isVMDestroyed get() = support.isVMDestroyed
     protected val isVMActive get() = support.isVMActive
     protected val isVMActiveFlow get() = support.isVMActiveFlow
     protected fun registerPlugin(plugin: PluginViewModel.Plugin) = support.registerPlugin(plugin)
 
     interface Support {
-        val viewModelScope: CoroutineScope
+        val vmScope: CoroutineScope
         val isVMDestroyed: Boolean
         val isVMActive: Boolean
         val isVMActiveFlow: Flow<Boolean>

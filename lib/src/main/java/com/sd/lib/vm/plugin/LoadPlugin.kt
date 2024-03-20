@@ -63,7 +63,7 @@ private class LoadPluginImpl : VMPlugin(), LoadPlugin {
         canLoad: suspend () -> Boolean,
         onLoad: suspend () -> Unit,
     ) {
-        viewModelScope.launch {
+        vmScope.launch {
             loadInternal(
                 notifyLoading = notifyLoading,
                 ignoreActive = ignoreActive,
