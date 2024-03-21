@@ -70,12 +70,12 @@ abstract class RealVMPlugin : VMPlugin {
     }
 
     /**
-     * 初始化(MainThread)
+     * 初始化 (MainThread)
      */
     protected open fun onInit() = Unit
 
     /**
-     * 销毁(MainThread)
+     * 销毁 (MainThread)
      */
     protected open fun onDestroy() = Unit
 
