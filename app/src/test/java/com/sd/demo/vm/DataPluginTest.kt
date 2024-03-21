@@ -170,7 +170,7 @@ private suspend fun TestScope.testLoad(
 
 private class DataPluginViewModel : PluginViewModel<Unit>() {
     private var _count = 0
-    private val _plugin = DataPlugin(_count).register()
+    private val _plugin = plugin { DataPlugin(_count) }
 
     val state = _plugin.state
 

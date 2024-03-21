@@ -46,7 +46,7 @@ class CustomPluginTest {
 }
 
 private class CustomPluginViewModel : PluginViewModel<Unit>() {
-    val customPlugin = CustomPlugin().register()
+    val customPlugin = plugin { CustomPlugin() }
 }
 
 private class CustomPlugin : RealVMPlugin() {

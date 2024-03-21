@@ -78,7 +78,7 @@ private fun Content(
 }
 
 class MyLoadViewModel : PluginViewModel<Unit>() {
-    private val _plugin = LoadPlugin().register()
+    private val _plugin = plugin { LoadPlugin() }
 
     private val _state = MutableStateFlow(State())
     val state = _state.asStateFlow()

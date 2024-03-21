@@ -101,7 +101,7 @@ private fun Content(
 
 class MyDataViewModel : PluginViewModel<Unit>() {
     private var _count = 0
-    private val _plugin = DataPlugin(UserModel(name = "")).register()
+    private val _plugin = plugin { DataPlugin(UserModel(name = "")) }
 
     val state = _plugin.state
 

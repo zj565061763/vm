@@ -159,7 +159,7 @@ private suspend fun TestScope.testLoad(
 }
 
 private class LoadPluginViewModel : PluginViewModel<Unit>() {
-    private val _plugin = LoadPlugin().register()
+    private val _plugin = plugin { LoadPlugin() }
 
     private val _state = MutableStateFlow(State())
     val state = _state.asStateFlow()

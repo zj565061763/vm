@@ -11,11 +11,11 @@ open class PluginViewModel<I> : FViewModel<I>() {
     private val _pluginManager = VMPluginManager.create(newPluginSupport())
 
     /**
-     * 注册插件
+     * 创建并注册插件
      */
     @MainThread
-    protected fun <T : VMPlugin> T.register(): T {
-        return this.also {
+    protected fun <T : VMPlugin> plugin(factory: () -> T): T {
+        return factory().also {
             _pluginManager.registerPlugin(it)
         }
     }

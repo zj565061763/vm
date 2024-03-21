@@ -185,7 +185,9 @@ class MyPageViewModel : PluginViewModel<Unit>() {
     private val _listUser = mutableListOf<UserModel>()
 
     /** 分页数据 */
-    val pagePlugin = PagePlugin { loadUsers(it, isRefresh) }.register()
+    val pagePlugin = plugin {
+        PagePlugin { loadUsers(it, isRefresh) }
+    }
 
     /**
      * 加载用户分页数据

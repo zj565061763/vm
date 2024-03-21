@@ -65,7 +65,7 @@ private fun Content(
 }
 
 class MyViewModel : PluginViewModel<MyViewModel.Intent>() {
-    private val _toast = ToastPlugin().register()
+    private val _toast = plugin { ToastPlugin() }
     val stateToast = _toast.state
 
     override suspend fun handleIntent(intent: Intent) {

@@ -380,7 +380,9 @@ private suspend fun TestScope.testLoadMore(
 private class PagePluginViewModel : PluginViewModel<Unit>() {
     private val _list = mutableListOf<Int>()
 
-    val plugin = PagePlugin { loadData(it, isRefresh) }.register()
+    val plugin = plugin {
+        PagePlugin { loadData(it, isRefresh) }
+    }
 
     private suspend fun loadData(
         page: Int,
