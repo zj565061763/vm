@@ -347,8 +347,8 @@ private suspend fun TestScope.testRefresh(
     val vm = PagePluginViewModel().apply { setActive(initialActive) }
     assertEquals(initialActive, vm.isVMActive)
 
-    vm.plugin.state.test {
-        vm.plugin.refresh(
+    vm.state.test {
+        vm.refreshData(
             notifyLoading = notifyLoading,
             ignoreActive = ignoreActive,
         )
@@ -367,8 +367,8 @@ private suspend fun TestScope.testLoadMore(
     val vm = PagePluginViewModel().apply { setActive(initialActive) }
     assertEquals(initialActive, vm.isVMActive)
 
-    vm.plugin.state.test {
-        vm.plugin.loadMore(
+    vm.state.test {
+        vm.loadMoreData(
             notifyLoading = notifyLoading,
             ignoreActive = ignoreActive,
         )
@@ -379,9 +379,32 @@ private suspend fun TestScope.testLoadMore(
 
 private class PagePluginViewModel : PluginViewModel<Unit>() {
     private val _list = mutableListOf<Int>()
+    private val _plugin = plugin { PagePlugin<Int>() }
 
-    val plugin = plugin {
-        PagePlugin { loadData(it, isRefresh) }
+    val state = _plugin.state
+
+    fun refreshData(
+        notifyLoading: Boolean,
+        ignoreActive: Boolean,
+    ) {
+        _plugin.refresh(
+            notifyLoading = notifyLoading,
+            ignoreActive = ignoreActive,
+        ) {
+            loadData(it, true)
+        }
+    }
+
+    fun loadMoreData(
+        notifyLoading: Boolean,
+        ignoreActive: Boolean,
+    ) {
+        _plugin.loadMore(
+            notifyLoading = notifyLoading,
+            ignoreActive = ignoreActive,
+        ) {
+            loadData(it, false)
+        }
     }
 
     private suspend fun loadData(

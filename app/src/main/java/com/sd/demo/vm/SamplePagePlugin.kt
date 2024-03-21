@@ -55,10 +55,10 @@ private fun Content(
     modifier: Modifier = Modifier,
     vm: MyPageViewModel = viewModel()
 ) {
-    val userPage by vm.pagePlugin.state.collectAsStateWithLifecycle()
+    val state by vm.state.collectAsStateWithLifecycle()
 
-    LaunchedEffect(vm.pagePlugin) {
-        vm.pagePlugin.refresh()
+    LaunchedEffect(vm) {
+        vm.refreshData()
     }
 
     FSwipeRefresh(
@@ -66,32 +66,32 @@ private fun Content(
         state = rememberFSwipeRefreshState {
             it.endIndicatorMode = IndicatorMode.Boundary
         },
-        isRefreshingStart = userPage.isRefreshing,
+        isRefreshingStart = state.isRefreshing,
         isRefreshingEnd = null,
-        onRefreshStart = { vm.pagePlugin.refresh() },
-        onRefreshEnd = { vm.pagePlugin.loadMore() },
+        onRefreshStart = { vm.refreshData() },
+        onRefreshEnd = { vm.loadMoreData() },
     ) {
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            items(items = userPage.data, key = { it.name }) { user ->
+            items(items = state.data, key = { it.name }) { user ->
                 ItemView(user = user)
             }
 
             item(contentType = "footer") {
                 FooterView(
                     modifier = Modifier.fillMaxWidth(),
-                    pageState = userPage,
+                    pageState = state,
                 )
             }
         }
 
-        userPage.onViewSuccessEmpty {
+        state.onViewSuccessEmpty {
             EmptyView()
         }
 
-        userPage.onViewFailureEmpty {
+        state.onViewFailureEmpty {
             ErrorView(text = it.toString())
         }
     }
@@ -183,10 +183,16 @@ private fun FooterView(
 
 class MyPageViewModel : PluginViewModel<Unit>() {
     private val _listUser = mutableListOf<UserModel>()
+    private val _plugin = plugin { PagePlugin<UserModel>() }
 
-    /** 分页数据 */
-    val pagePlugin = plugin {
-        PagePlugin { loadUsers(it, isRefresh) }
+    val state = _plugin.state
+
+    fun refreshData() {
+        _plugin.refresh { loadUsers(it, true) }
+    }
+
+    fun loadMoreData() {
+        _plugin.loadMore { loadUsers(it, false) }
     }
 
     /**
