@@ -4,7 +4,7 @@ import android.os.Looper
 import androidx.annotation.MainThread
 import kotlinx.coroutines.CoroutineScope
 
-class VMPluginManager(
+class VMPluginManager private constructor(
     private val support: VMPlugin.Support
 ) {
     private val _plugins: MutableSet<RealVMPlugin> = hashSetOf()
@@ -28,6 +28,13 @@ class VMPluginManager(
     fun notifyDestroy() {
         _plugins.forEach { it.notifyDestroy() }
         _plugins.clear()
+    }
+
+    companion object {
+        @JvmStatic
+        fun create(support: VMPlugin.Support): VMPluginManager {
+            return VMPluginManager(support)
+        }
     }
 }
 

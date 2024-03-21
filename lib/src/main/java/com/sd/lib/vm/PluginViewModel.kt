@@ -8,7 +8,7 @@ import com.sd.lib.vm.plugin.VMPluginManager
 import kotlinx.coroutines.CoroutineScope
 
 open class PluginViewModel<I> : FViewModel<I>() {
-    private val _pluginManager = VMPluginManager(newPluginSupport())
+    private val _pluginManager = VMPluginManager.create(newPluginSupport())
 
     /**
      * 注册插件
