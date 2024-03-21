@@ -36,7 +36,7 @@ open class FViewModel<I> : ViewModel() {
 
     /** 基于[Dispatchers.Default]并发为1的调度器 */
     @OptIn(ExperimentalCoroutinesApi::class)
-    val singleDispatcher: CoroutineDispatcher by lazy { Dispatchers.Default.limitedParallelism(1) }
+    protected val singleDispatcher: CoroutineDispatcher by lazy { Dispatchers.Default.limitedParallelism(1) }
 
     /**
      * 设置激活状态
