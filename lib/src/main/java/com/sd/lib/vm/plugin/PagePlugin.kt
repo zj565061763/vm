@@ -248,7 +248,6 @@ private class PagePluginImpl<T>(
     private val _loadMorePlugin = LoadPlugin()
 
     private val _state = MutableStateFlow(PageState(data = initial))
-
     override val state: StateFlow<PageState<T>> = _state.asStateFlow()
 
     override fun refresh(
