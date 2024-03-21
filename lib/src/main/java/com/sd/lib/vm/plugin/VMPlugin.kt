@@ -22,10 +22,10 @@ class VMPluginManager(
     }
 
     /**
-     * 清空并销毁所有插件
+     * 通知销毁，销毁所有插件
      */
     @MainThread
-    fun destroyPlugins() {
+    fun notifyDestroy() {
         _plugins.forEach { it.notifyDestroy() }
         _plugins.clear()
     }

@@ -6,7 +6,6 @@ import androidx.lifecycle.viewModelScope
 import com.sd.lib.vm.plugin.VMPlugin
 import com.sd.lib.vm.plugin.VMPluginManager
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.Flow
 
 open class PluginViewModel<I> : FViewModel<I>() {
     private val _pluginManager = VMPluginManager(newPluginSupport())
@@ -24,7 +23,7 @@ open class PluginViewModel<I> : FViewModel<I>() {
     @CallSuper
     override fun onDestroy() {
         super.onDestroy()
-        _pluginManager.destroyPlugins()
+        _pluginManager.notifyDestroy()
     }
 
     private fun newPluginSupport(): VMPlugin.Support {
