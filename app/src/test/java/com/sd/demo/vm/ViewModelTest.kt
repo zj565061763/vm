@@ -31,12 +31,10 @@ class ViewModelTest {
     fun `test destroy`() {
         val vm = TestDestroyViewModel()
         assertEquals(false, vm.isVMDestroyed)
-        assertEquals("", vm.callbackString)
         assertEquals(0, vm.callbackCount)
 
         vm.tryClear()
         assertEquals(true, vm.isVMDestroyed)
-        assertEquals("onDestroy()", vm.callbackString)
         assertEquals(1, vm.callbackCount)
     }
 
@@ -118,16 +116,12 @@ class ViewModelTest {
 }
 
 private class TestDestroyViewModel : FViewModel<Unit>() {
-    var callbackString = ""
-        private set
-
     var callbackCount = 0
         private set
 
     override fun onDestroy() {
         super.onDestroy()
         callbackCount++
-        callbackString = "onDestroy()"
     }
 }
 
