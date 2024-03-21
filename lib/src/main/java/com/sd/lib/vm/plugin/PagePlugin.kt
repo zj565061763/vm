@@ -255,23 +255,22 @@ private class PagePluginImpl<T>(
         ignoreActive: Boolean,
         canLoad: suspend PagePlugin.LoadScope<T>.(page: Int) -> Boolean,
     ) {
+        val loadScope = newLoadScope(true)
+        val page = refreshPage
+
         _refreshPlugin.load(
             notifyLoading = notifyLoading,
             ignoreActive = ignoreActive,
-            canLoad = {
-                canLoadData(
-                    page = refreshPage,
-                    isRefresh = true,
-                    canLoad = canLoad,
-                )
-            },
+            canLoad = { with(loadScope) { canLoad(page) } },
         ) {
             // 刷新之前取消加载更多
             cancelLoadMore()
-            loadData(
-                page = refreshPage,
+
+            val result = with(loadScope) { onLoad(page) }
+            handleLoadResult(
+                page = page,
                 isRefresh = true,
-                onLoad = onLoad,
+                result = result,
             )
         }
     }
@@ -281,21 +280,26 @@ private class PagePluginImpl<T>(
         ignoreActive: Boolean,
         canLoad: suspend PagePlugin.LoadScope<T>.(page: Int) -> Boolean,
     ) {
+        val loadScope = newLoadScope(false)
+        val page = loadMorePage
+
         _loadMorePlugin.load(
             notifyLoading = notifyLoading,
             ignoreActive = ignoreActive,
             canLoad = {
-                canLoadData(
-                    page = loadMorePage,
-                    isRefresh = false,
-                    canLoad = canLoad,
-                )
+                val isLoading = state.value.run { isRefreshing || isLoadingMore }
+                if (isLoading) {
+                    false
+                } else {
+                    with(loadScope) { canLoad(page) }
+                }
             },
         ) {
-            loadData(
-                page = loadMorePage,
+            val result = with(loadScope) { onLoad(page) }
+            handleLoadResult(
+                page = page,
                 isRefresh = false,
-                onLoad = onLoad,
+                result = result,
             )
         }
     }
@@ -312,31 +316,6 @@ private class PagePluginImpl<T>(
         _state.update {
             it.copy(data = emptyList())
         }
-    }
-
-    private suspend fun canLoadData(
-        page: Int,
-        isRefresh: Boolean,
-        canLoad: suspend PagePlugin.LoadScope<T>.(page: Int) -> Boolean,
-    ): Boolean {
-        if (!isRefresh) {
-            val isLoading = state.value.run { isRefreshing || isLoadingMore }
-            if (isLoading) return false
-        }
-        return with(newLoadScope(isRefresh)) { canLoad(page) }
-    }
-
-    private suspend fun loadData(
-        page: Int,
-        isRefresh: Boolean,
-        onLoad: suspend PagePlugin.LoadScope<T>.(page: Int) -> PagePlugin.LoadResult<T>,
-    ) {
-        val result = with(newLoadScope(isRefresh)) { onLoad(page) }
-        handleLoadResult(
-            page = page,
-            isRefresh = isRefresh,
-            result = result,
-        )
     }
 
     private fun handleLoadResult(
