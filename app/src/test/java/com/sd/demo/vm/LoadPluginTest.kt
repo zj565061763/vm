@@ -4,7 +4,7 @@ import android.os.Looper
 import androidx.lifecycle.viewModelScope
 import app.cash.turbine.TurbineTestContext
 import app.cash.turbine.test
-import com.sd.lib.vm.PluginViewModel
+import com.sd.lib.vm.FViewModel
 import com.sd.lib.vm.plugin.LoadPlugin
 import io.mockk.every
 import io.mockk.mockkClass
@@ -158,7 +158,7 @@ private suspend fun TestScope.testLoad(
     }
 }
 
-private class LoadPluginViewModel : PluginViewModel<Unit>() {
+private class LoadPluginViewModel : FViewModel<Unit>() {
     private val _plugin = plugin { LoadPlugin() }
 
     private val _state = MutableStateFlow(State())

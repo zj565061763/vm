@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sd.demo.vm.model.UserModel
-import com.sd.lib.vm.PluginViewModel
+import com.sd.lib.vm.FViewModel
 import com.sd.lib.vm.plugin.DataPlugin
 import com.sd.lib.vm.plugin.onFailure
 import com.sd.lib.vm.plugin.onInitial
@@ -99,7 +99,7 @@ private fun Content(
     }
 }
 
-class MyDataViewModel : PluginViewModel<Unit>() {
+class MyDataViewModel : FViewModel<Unit>() {
     private var _count = 0
     private val _plugin = plugin { DataPlugin(UserModel(name = "")) }
 

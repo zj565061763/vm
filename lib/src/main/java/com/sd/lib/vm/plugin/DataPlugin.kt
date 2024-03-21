@@ -45,7 +45,7 @@ fun <T> DataPlugin(initial: T): DataPlugin<T> {
     return DataPluginImpl(initial = initial)
 }
 
-//---------- state ----------
+//-------------------- state --------------------
 
 data class DataState<T>(
     /** 数据 */
@@ -91,7 +91,7 @@ inline fun <T> DataState<T>.onFailure(action: DataState<T>.(exception: Throwable
     return this
 }
 
-//---------- impl ----------
+//-------------------- impl --------------------
 
 private class DataPluginImpl<T>(initial: T) : RealVMPlugin(), DataPlugin<T> {
 

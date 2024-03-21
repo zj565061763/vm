@@ -43,6 +43,8 @@ interface LoadPlugin : VMPlugin {
  */
 fun LoadPlugin(): LoadPlugin = LoadPluginImpl()
 
+//-------------------- impl --------------------
+
 private class LoadPluginImpl : RealVMPlugin(), LoadPlugin {
     /** 所有任务 */
     private val _jobs: MutableSet<Job> = Collections.synchronizedSet(hashSetOf())

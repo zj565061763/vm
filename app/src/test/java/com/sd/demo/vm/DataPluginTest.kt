@@ -3,7 +3,7 @@ package com.sd.demo.vm
 import android.os.Looper
 import app.cash.turbine.TurbineTestContext
 import app.cash.turbine.test
-import com.sd.lib.vm.PluginViewModel
+import com.sd.lib.vm.FViewModel
 import com.sd.lib.vm.plugin.DataPlugin
 import com.sd.lib.vm.plugin.DataState
 import com.sd.lib.vm.plugin.isInitial
@@ -168,7 +168,7 @@ private suspend fun TestScope.testLoad(
     }
 }
 
-private class DataPluginViewModel : PluginViewModel<Unit>() {
+private class DataPluginViewModel : FViewModel<Unit>() {
     private var _count = 0
     private val _plugin = plugin { DataPlugin(_count) }
 

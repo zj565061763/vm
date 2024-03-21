@@ -152,7 +152,7 @@ fun <T> PagePlugin(
     )
 }
 
-//---------- state ----------
+//-------------------- state --------------------
 
 data class PageState<T>(
     /** 总数据 */
@@ -230,7 +230,7 @@ inline fun <T> PageState<T>.onViewFailureEmpty(action: PageState<T>.(exception: 
     return this
 }
 
-//---------- impl ----------
+//-------------------- impl --------------------
 
 private class PagePluginImpl<T>(
     initial: List<T>,

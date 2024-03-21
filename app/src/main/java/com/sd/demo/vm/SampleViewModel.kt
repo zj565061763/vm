@@ -19,7 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sd.demo.vm.plugin.ToastPlugin
-import com.sd.lib.vm.PluginViewModel
+import com.sd.lib.vm.FViewModel
 
 class SampleViewModel : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -64,7 +64,7 @@ private fun Content(
     }
 }
 
-class MyViewModel : PluginViewModel<MyViewModel.Intent>() {
+class MyViewModel : FViewModel<MyViewModel.Intent>() {
     private val _toast = plugin { ToastPlugin() }
     val stateToast = _toast.state
 

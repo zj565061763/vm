@@ -1,7 +1,7 @@
 package com.sd.demo.vm
 
 import android.os.Looper
-import com.sd.lib.vm.PluginViewModel
+import com.sd.lib.vm.FViewModel
 import com.sd.lib.vm.plugin.RealVMPlugin
 import io.mockk.every
 import io.mockk.mockkClass
@@ -45,7 +45,7 @@ class CustomPluginTest {
     }
 }
 
-private class CustomPluginViewModel : PluginViewModel<Unit>() {
+private class CustomPluginViewModel : FViewModel<Unit>() {
     val customPlugin = plugin { CustomPlugin() }
 }
 

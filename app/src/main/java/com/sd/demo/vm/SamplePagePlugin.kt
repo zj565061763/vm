@@ -30,7 +30,7 @@ import com.sd.demo.vm.model.UserModel
 import com.sd.lib.compose.swiperefresh.FSwipeRefresh
 import com.sd.lib.compose.swiperefresh.IndicatorMode
 import com.sd.lib.compose.swiperefresh.rememberFSwipeRefreshState
-import com.sd.lib.vm.PluginViewModel
+import com.sd.lib.vm.FViewModel
 import com.sd.lib.vm.plugin.PagePlugin
 import com.sd.lib.vm.plugin.PageState
 import com.sd.lib.vm.plugin.onViewFailureEmpty
@@ -181,7 +181,7 @@ private fun FooterView(
     }
 }
 
-class MyPageViewModel : PluginViewModel<Unit>() {
+class MyPageViewModel : FViewModel<Unit>() {
     private val _listUser = mutableListOf<UserModel>()
     private val _plugin = plugin { PagePlugin<UserModel>() }
 

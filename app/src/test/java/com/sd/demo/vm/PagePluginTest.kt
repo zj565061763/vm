@@ -3,7 +3,7 @@ package com.sd.demo.vm
 import android.os.Looper
 import app.cash.turbine.TurbineTestContext
 import app.cash.turbine.test
-import com.sd.lib.vm.PluginViewModel
+import com.sd.lib.vm.FViewModel
 import com.sd.lib.vm.plugin.PagePlugin
 import com.sd.lib.vm.plugin.PageState
 import com.sd.lib.vm.plugin.isInitial
@@ -377,7 +377,7 @@ private suspend fun TestScope.testLoadMore(
     }
 }
 
-private class PagePluginViewModel : PluginViewModel<Unit>() {
+private class PagePluginViewModel : FViewModel<Unit>() {
     private val _list = mutableListOf<Int>()
     private val _plugin = plugin { PagePlugin<Int>() }
 

@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.sd.lib.vm.PluginViewModel
+import com.sd.lib.vm.FViewModel
 import com.sd.lib.vm.plugin.LoadPlugin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -77,7 +77,7 @@ private fun Content(
     }
 }
 
-class MyLoadViewModel : PluginViewModel<Unit>() {
+class MyLoadViewModel : FViewModel<Unit>() {
     private val _plugin = plugin { LoadPlugin() }
 
     private val _state = MutableStateFlow(State())
