@@ -27,7 +27,6 @@ class VMPluginManager private constructor(
     @MainThread
     fun notifyDestroy() {
         _plugins.forEach { it.notifyDestroy() }
-        _plugins.clear()
     }
 
     companion object {
